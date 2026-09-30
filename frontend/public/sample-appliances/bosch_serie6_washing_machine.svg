@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="520" viewBox="0 0 800 520">
+    <defs>
+      <linearGradient id="grad_10b981" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#111726"/>
+        <stop offset="100%" stop-color="#090d16"/>
+      </linearGradient>
+    </defs>
+    <rect width="100%" height="100%" fill="#070a10"/>
+    <rect x="24" y="24" width="752" height="472" rx="16" fill="url(#grad_10b981)" stroke="#1e293d" stroke-width="2"/>
+    
+    <!-- Header banner -->
+    <rect x="24" y="24" width="752" height="56" rx="16" fill="#0c121e"/>
+    <rect x="44" y="42" width="12" height="12" rx="3" fill="#10b981"/>
+    <text x="66" y="52" fill="#f8fafc" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14" font-weight="700">FixIt Pro Appliance Diagnostic System • Mumbai Service Center</text>
+    <line x1="24" y1="80" x2="776" y2="80" stroke="#1e293d" stroke-width="1"/>
+
+    <!-- Appliance Badge Frame -->
+    <circle cx="400" cy="200" r="70" fill="#10b981" opacity="0.15"/>
+    <rect x="350" y="150" width="100" height="100" rx="14" fill="#182032" stroke="#10b981" stroke-width="3.5"/>
+    <text x="400" y="212" text-anchor="middle" font-size="48">🫧</text>
+
+    <!-- Details -->
+    <text x="400" y="300" text-anchor="middle" fill="#10b981" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14" font-weight="800" letter-spacing="2">BOSCH HOME APPLIANCES</text>
+    <text x="400" y="340" text-anchor="middle" fill="#f8fafc" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="24" font-weight="bold">Bosch Serie 6 7kg EcoSilence</text>
+    <text x="400" y="375" text-anchor="middle" fill="#94a3b8" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="15">Model: WLJ24160IN • 1200 RPM • Anti-Vibration Design</text>
+
+    <!-- Verification Footer -->
+    <rect x="180" y="415" width="440" height="36" rx="8" fill="#0c121e" stroke="#1e293d" stroke-width="1"/>
+    <circle cx="205" cy="433" r="6" fill="#22c55e"/>
+    <text x="222" y="438" fill="#cbd5e1" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="600">Verified Inspection Artifact • Ready for Upload / Diagnostic</text>
+  </svg>

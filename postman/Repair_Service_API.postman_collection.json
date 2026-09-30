@@ -1,0 +1,604 @@
+{
+  "info": {
+    "_postman_id": "9b12a874-4821-4f76-bc34-9d18e8749132",
+    "name": "Repair Service Management System API (Case Study #132)",
+    "description": "Complete REST API collection for Case Study #132 - Repair Service Management System.\nFeatures:\n- Customer & Technician Registration/Login (JWT)\n- Image upload with Multer\n- Role-based & Ownership-based authorization\n- Strict status workflow progression: Assigned -> In Progress -> Completed\n- Centralized error handling & validation",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:5001/api",
+      "type": "string"
+    },
+    {
+      "key": "customerToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "technicianToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "otherTechnicianToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "technicianId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "requestId",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "1. Authentication",
+      "item": [
+        {
+          "name": "Register Customer",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Alice Customer\",\n  \"email\": \"alice.customer@example.com\",\n  \"password\": \"password123\",\n  \"phone\": \"+1-555-0144\",\n  \"address\": \"742 Evergreen Terrace, Springfield\",\n  \"role\": \"customer\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "register"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Register Technician",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Bob Tech\",\n  \"email\": \"bob.tech@example.com\",\n  \"password\": \"password123\",\n  \"phone\": \"+1-555-0188\",\n  \"specialization\": \"Air Conditioner (AC)\",\n  \"role\": \"technician\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "register"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Register Other Technician (For 403 test)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Charlie Tech\",\n  \"email\": \"charlie.tech@example.com\",\n  \"password\": \"password123\",\n  \"phone\": \"+1-555-0199\",\n  \"specialization\": \"Refrigerator\",\n  \"role\": \"technician\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "register"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Login Customer",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.success && jsonData.data && jsonData.data.token) {",
+                  "    pm.collectionVariables.set('customerToken', jsonData.data.token);",
+                  "    console.log('Customer token saved to collection variable');",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"alice.customer@example.com\",\n  \"password\": \"password123\",\n  \"role\": \"customer\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "login"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Login Technician (Bob)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.success && jsonData.data && jsonData.data.token) {",
+                  "    pm.collectionVariables.set('technicianToken', jsonData.data.token);",
+                  "    console.log('Technician token saved to collection variable');",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"bob.tech@example.com\",\n  \"password\": \"password123\",\n  \"role\": \"technician\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "login"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Login Other Technician (Charlie - for 403 test)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.success && jsonData.data && jsonData.data.token) {",
+                  "    pm.collectionVariables.set('otherTechnicianToken', jsonData.data.token);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"charlie.tech@example.com\",\n  \"password\": \"password123\",\n  \"role\": \"technician\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "login"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Current Profile (Me)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{customerToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/me",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "me"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "2. Technicians",
+      "item": [
+        {
+          "name": "List Technicians (Customer Access)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.success && jsonData.data && jsonData.data.length > 0) {",
+                  "    pm.collectionVariables.set('technicianId', jsonData.data[0]._id);",
+                  "    console.log('Technician ID saved:', jsonData.data[0]._id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{customerToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/technicians",
+              "host": ["{{baseUrl}}"],
+              "path": ["technicians"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "3. Repair Requests (Core)",
+      "item": [
+        {
+          "name": "Create Repair Request (Customer with Photo)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.success && jsonData.data && jsonData.data._id) {",
+                  "    pm.collectionVariables.set('requestId', jsonData.data._id);",
+                  "    console.log('Created Request ID saved:', jsonData.data._id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{customerToken}}"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "technician",
+                  "value": "{{technicianId}}",
+                  "type": "text"
+                },
+                {
+                  "key": "applianceType",
+                  "value": "Air Conditioner (AC)",
+                  "type": "text"
+                },
+                {
+                  "key": "brand",
+                  "value": "Daikin Inverter",
+                  "type": "text"
+                },
+                {
+                  "key": "issueDescription",
+                  "value": "AC outdoor unit is making abnormal noise and indoor unit error code E4 is flashing.",
+                  "type": "text"
+                },
+                {
+                  "key": "photo",
+                  "type": "file",
+                  "src": []
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/requests",
+              "host": ["{{baseUrl}}"],
+              "path": ["requests"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Customer's Own Requests (Customer Only)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{customerToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/requests/my",
+              "host": ["{{baseUrl}}"],
+              "path": ["requests", "my"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Assigned Requests (Technician Only)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{technicianToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/requests/assigned",
+              "host": ["{{baseUrl}}"],
+              "path": ["requests", "assigned"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Request Details by ID (Authorized Customer / Tech)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{customerToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/requests/{{requestId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["requests", "{{requestId}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Status to 'In Progress' (Assigned Technician)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{technicianToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"In Progress\",\n  \"note\": \"Technician arrived at site, commenced diagnostic and component testing.\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/requests/{{requestId}}/status",
+              "host": ["{{baseUrl}}"],
+              "path": ["requests", "{{requestId}}", "status"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Status to 'Completed' (Assigned Technician)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{technicianToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"Completed\",\n  \"note\": \"Capacitor replaced and refrigerant pressure tuned. Appliance cooling optimally.\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/requests/{{requestId}}/status",
+              "host": ["{{baseUrl}}"],
+              "path": ["requests", "{{requestId}}", "status"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "4. Negative & Edge Test Cases",
+      "item": [
+        {
+          "name": "Negative: Wrong Technician Updates Status (Expect 403 Forbidden)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{otherTechnicianToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"In Progress\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/requests/{{requestId}}/status",
+              "host": ["{{baseUrl}}"],
+              "path": ["requests", "{{requestId}}", "status"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Negative: Invalid Status Workflow Transition (Expect 400 Bad Request)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{technicianToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"In Progress\",\n  \"note\": \"Attempting illegal backward transition from Completed\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/requests/{{requestId}}/status",
+              "host": ["{{baseUrl}}"],
+              "path": ["requests", "{{requestId}}", "status"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Negative: Create Request Missing Appliance Photo (Expect 400 Bad Request)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{customerToken}}"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "technician",
+                  "value": "{{technicianId}}",
+                  "type": "text"
+                },
+                {
+                  "key": "applianceType",
+                  "value": "Microwave",
+                  "type": "text"
+                },
+                {
+                  "key": "issueDescription",
+                  "value": "Microwave sparking inside while heating.",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/requests",
+              "host": ["{{baseUrl}}"],
+              "path": ["requests"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Negative: Short Issue Description (< 10 chars) (Expect 400 Bad Request)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{customerToken}}"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "technician",
+                  "value": "{{technicianId}}",
+                  "type": "text"
+                },
+                {
+                  "key": "applianceType",
+                  "value": "Microwave",
+                  "type": "text"
+                },
+                {
+                  "key": "issueDescription",
+                  "value": "Broken",
+                  "type": "text"
+                },
+                {
+                  "key": "photo",
+                  "type": "file",
+                  "src": []
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/requests",
+              "host": ["{{baseUrl}}"],
+              "path": ["requests"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Negative: Access Endpoint Without JWT (Expect 401 Unauthorized)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/requests/my",
+              "host": ["{{baseUrl}}"],
+              "path": ["requests", "my"]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}
