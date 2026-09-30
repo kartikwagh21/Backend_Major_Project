@@ -2,7 +2,7 @@
   "info": {
     "_postman_id": "9b12a874-4821-4f76-bc34-9d18e8749132",
     "name": "Repair Service Management System API (Case Study #132)",
-    "description": "Complete REST API collection for Case Study #132 - Repair Service Management System.\nFeatures:\n- Customer & Technician Registration/Login (JWT)\n- Image upload with Multer\n- Role-based & Ownership-based authorization\n- Strict status workflow progression: Assigned -> In Progress -> Completed\n- Centralized error handling & validation",
+    "description": "Complete REST API collection for Case Study #132 - Repair Service Management System.\nFeatures:\n- Customer & Technician Registration/Login (JWT)\n- Image upload with Multer (Memory Storage -> MongoDB Binary Stream)\n- Authenticated Photo streaming via GET /api/requests/:id/photo\n- Customer Cancellation (PATCH /api/requests/:id/status from Assigned)\n- Role-based & Ownership-based authorization (403 / 400 guards)\n- Strict status workflow progression: Assigned -> In Progress -> Completed",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
@@ -23,6 +23,11 @@
     },
     {
       "key": "otherTechnicianToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "otherCustomerToken",
       "value": "",
       "type": "string"
     },
@@ -98,6 +103,28 @@
             "body": {
               "mode": "raw",
               "raw": "{\n  \"name\": \"Charlie Tech\",\n  \"email\": \"charlie.tech@example.com\",\n  \"password\": \"password123\",\n  \"phone\": \"+1-555-0199\",\n  \"specialization\": \"Refrigerator\",\n  \"role\": \"technician\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "register"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Register Other Customer (For 403 test)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"David Other Customer\",\n  \"email\": \"david.customer@example.com\",\n  \"password\": \"password123\",\n  \"phone\": \"+1-555-0104\",\n  \"role\": \"customer\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/auth/register",
@@ -218,6 +245,42 @@
           "response": []
         },
         {
+          "name": "Login Other Customer (David - for 403 test)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.success && jsonData.data && jsonData.data.token) {",
+                  "    pm.collectionVariables.set('otherCustomerToken', jsonData.data.token);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"david.customer@example.com\",\n  \"password\": \"password123\",\n  \"role\": \"customer\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "login"]
+            }
+          },
+          "response": []
+        },
+        {
           "name": "Get Current Profile (Me)",
           "request": {
             "method": "GET",
@@ -279,7 +342,7 @@
       "name": "3. Repair Requests (Core)",
       "item": [
         {
-          "name": "Create Repair Request (Customer with Photo)",
+          "name": "Create Repair Request (Customer with Photo in MongoDB)",
           "event": [
             {
               "listen": "test",
@@ -396,6 +459,50 @@
           "response": []
         },
         {
+          "name": "Stream Appliance Photo Securely (Customer / Tech Auth)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{customerToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/requests/{{requestId}}/photo",
+              "host": ["{{baseUrl}}"],
+              "path": ["requests", "{{requestId}}", "photo"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Customer Cancel Request (Owner Customer from Assigned Status)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{customerToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"Cancelled\",\n  \"note\": \"Customer resolved the appliance issue without technician visit.\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/requests/{{requestId}}/status",
+              "host": ["{{baseUrl}}"],
+              "path": ["requests", "{{requestId}}", "status"]
+            }
+          },
+          "response": []
+        },
+        {
           "name": "Update Status to 'In Progress' (Assigned Technician)",
           "request": {
             "method": "PATCH",
@@ -453,6 +560,42 @@
       "name": "4. Negative & Edge Test Cases",
       "item": [
         {
+          "name": "Negative: Stranger Accesses Photo (Expect 403 Forbidden)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{otherCustomerToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/requests/{{requestId}}/photo",
+              "host": ["{{baseUrl}}"],
+              "path": ["requests", "{{requestId}}", "photo"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Negative: Other Customer Views Request Details (Expect 403 Forbidden)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{otherCustomerToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/requests/{{requestId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["requests", "{{requestId}}"]
+            }
+          },
+          "response": []
+        },
+        {
           "name": "Negative: Wrong Technician Updates Status (Expect 403 Forbidden)",
           "request": {
             "method": "PATCH",
@@ -460,6 +603,58 @@
               {
                 "key": "Authorization",
                 "value": "Bearer {{otherTechnicianToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"In Progress\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/requests/{{requestId}}/status",
+              "host": ["{{baseUrl}}"],
+              "path": ["requests", "{{requestId}}", "status"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Negative: Customer Cancels Non-Assigned Request (Expect 400 Bad Request)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{customerToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"Cancelled\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/requests/{{requestId}}/status",
+              "host": ["{{baseUrl}}"],
+              "path": ["requests", "{{requestId}}", "status"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Negative: Customer Attempts Illegal Status Progression (Expect 400 Bad Request)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{customerToken}}"
               },
               {
                 "key": "Content-Type",
@@ -581,6 +776,46 @@
               "raw": "{{baseUrl}}/requests",
               "host": ["{{baseUrl}}"],
               "path": ["requests"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Negative: Register With Invalid Role (Expect 400 Bad Request)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Attacker\",\n  \"email\": \"attacker@example.com\",\n  \"password\": \"password123\",\n  \"phone\": \"+1-555-0199\",\n  \"role\": \"superadmin\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "register"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Negative: Technician Accesses Customer Technicians List (Expect 403 Forbidden)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{technicianToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/technicians",
+              "host": ["{{baseUrl}}"],
+              "path": ["technicians"]
             }
           },
           "response": []

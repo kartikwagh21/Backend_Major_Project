@@ -31,14 +31,17 @@
 The **Repair Service Management System** (**FixIt Pro**) is a full-stack, enterprise-grade web application built to streamline appliance repair requests between customers and certified technicians. 
 
 ### Key Features:
-- **Customer Portal**: Customers can raise repair requests with photo upload (handled via Multer) and track status in real-time.
+- **Customer Portal**: Customers can raise repair requests with photo upload (handled in-memory via Multer and stored directly in MongoDB Atlas as Binary Buffers) and track status in real-time.
+- **Customer Cancellation**: Customers can cancel their own repair requests while in `Assigned` status via `PATCH /api/requests/:id/status`.
 - **Technician Workspace**: Technicians can view jobs assigned to them and update workflow stages (`Assigned` &rarr; `In Progress` &rarr; `Completed`).
+- **Secure Image Streaming**: Appliance photos are stored in MongoDB Atlas and served via the authenticated endpoint `GET /api/requests/:id/photo` with strict ownership checks (only the owner customer or assigned technician can view the photo).
 - **Role-Based & Ownership-Based Authorization**:
   - Customers can only view and access their own requests.
   - Technicians can only view and update requests assigned directly to them.
+  - `GET /api/technicians` is restricted to customers and exposes non-sensitive fields (`name`, `specialization`, `_id`).
   - Unauthorized access attempts are strictly rejected with HTTP `403 Forbidden`.
-- **Strict Status State Machine**: Enforces valid progression order and records an immutable audit log (`statusHistory`) with timestamps and user details.
-- **Robust Validation**: Server-side request validation using `express-validator` with automatic cleanup of uploaded files if validation fails.
+- **Strict Status State Machine**: Enforces valid progression order and records an immutable audit log (`statusHistory`) with timestamps, roles, and user details.
+- **Robust Validation**: Server-side request validation using `express-validator` ensuring data integrity and role safety.
 
 ---
 
@@ -51,12 +54,13 @@ The **Repair Service Management System** (**FixIt Pro**) is a full-stack, enterp
 | **Database** | MongoDB Atlas / MongoDB | Document-oriented NoSQL database |
 | **ODM** | Mongoose | Schema modeling, validation, and population |
 | **Authentication** | JSON Web Tokens (`jsonwebtoken`) + `bcryptjs` | Stateless authentication and password hashing |
-| **File Storage** | Multer | Multi-part form-data handling for appliance photos |
+| **File Storage** | Multer (`memoryStorage`) & MongoDB Atlas Buffer | Cloud-resilient binary storage without ephemeral-disk data loss |
 | **Validation** | `express-validator` | Structured request body & param validation |
+| **Testing** | Jest + Supertest + `mongodb-memory-server` | Comprehensive automated unit and integration test suite |
 | **Frontend** | React 18 + Vite | Lightning-fast Single Page Application (SPA) |
 | **Routing** | React Router v6 | Client-side routing with role-based guards |
-| **HTTP Client** | Axios | API consumption with JWT request interceptors |
-| **Design** | Vanilla CSS (Glassmorphism design system) | Modern, responsive dark/light styling |
+| **HTTP Client** | Axios | API consumption with JWT request interceptors & secure blob image handling |
+| **Design** | Vanilla CSS (Glassmorphism design system) | Modern, responsive dark styling |
 
 ---
 
@@ -64,7 +68,7 @@ The **Repair Service Management System** (**FixIt Pro**) is a full-stack, enterp
 
 ```
 Kartik_Wagh/
-├── sample_appliance_images/           # High-resolution appliance photos for upload testing
+├── sample_appliance_images/           # High-resolution appliance photos for upload and seeding
 │   ├── voltas_1.5ton_split_ac.svg
 │   ├── daikin_2ton_inverter_ac.svg
 │   ├── panasonic_1ton_smart_ac.svg
@@ -78,34 +82,37 @@ Kartik_Wagh/
 ├── backend/
 │   ├── config/
 │   │   ├── db.js                      # MongoDB Atlas / Memory fallback connection
-│   │   └── seedRealisticData.js       # Indian Mumbai dataset seeder
+│   │   ├── seed.js                    # Minimal demo seeder
+│   │   └── seedRealisticData.js       # Indian Mumbai dataset seeder with binary photos
 │   ├── controllers/
 │   │   ├── authController.js          # Register, Login, Me endpoints
-│   │   ├── requestController.js       # Repair request CRUD & workflow logic
-│   │   └── technicianController.js    # Technician directory endpoints
+│   │   ├── requestController.js       # Repair request CRUD, photo stream & workflow logic
+│   │   └── technicianController.js    # Technician directory endpoint (non-sensitive fields)
 │   ├── middleware/
 │   │   ├── authMiddleware.js          # JWT verification & user attachment
 │   │   ├── roleMiddleware.js          # Role-based guard (customer / technician)
 │   │   ├── ownershipMiddleware.js     # Ownership & technician assignment guard
-│   │   ├── uploadMiddleware.js        # Multer diskStorage, filter & file cleanup
+│   │   ├── uploadMiddleware.js        # Multer memoryStorage & MIME filter
 │   │   ├── validateMiddleware.js      # Express-validator rules & error formatter
 │   │   └── errorMiddleware.js         # Centralized error & 404 handler
 │   ├── models/
 │   │   ├── Customer.js                # Customer Mongoose model
 │   │   ├── Technician.js              # Technician Mongoose model
-│   │   └── RepairRequest.js           # RepairRequest schema with referenced IDs
+│   │   └── RepairRequest.js           # RepairRequest schema with binary photo and audit trail
 │   ├── routes/
 │   │   ├── authRoutes.js              # /api/auth
-│   │   ├── requestRoutes.js           # /api/requests
+│   │   ├── requestRoutes.js           # /api/requests (CRUD, photo, status)
 │   │   └── technicianRoutes.js        # /api/technicians
-│   ├── uploads/                       # Appliance image uploads (.gitkeep)
+│   ├── tests/
+│   │   └── api.test.js                # Comprehensive Jest test suite
+│   ├── test-runner.js                 # Standalone integration test runner
 │   ├── .env.example                   # Backend environment template
 │   ├── .gitignore
 │   ├── package.json
 │   └── server.js                      # Main Express server entry point
 ├── frontend/                          # React (Vite) Single Page App
 │   ├── public/
-│   │   └── _redirects                 # Netlify SPA redirect
+│   │   └── _redirects                 # SPA redirects for static hosts
 │   ├── src/
 │   │   ├── api/
 │   │   │   └── axios.js               # Configured Axios instance with JWT interceptor
@@ -113,26 +120,28 @@ Kartik_Wagh/
 │   │   │   ├── Navbar.jsx             # Top bar navigation & user indicator
 │   │   │   ├── PhotoModal.jsx         # Full-screen appliance photo lightbox
 │   │   │   ├── ProtectedRoute.jsx     # Route authentication & role guard
+│   │   │   ├── SecureImage.jsx        # Authenticated photo stream component with Object URL lifecycle
 │   │   │   ├── StatusBadge.jsx        # Color-coded workflow badge
 │   │   │   └── StatusHistoryTimeline.jsx # Visual audit trail timeline
 │   │   ├── context/
 │   │   │   └── AuthContext.jsx        # Global auth state & persistent token
 │   │   ├── pages/
-│   │   │   ├── CustomerDashboard.jsx  # Customer request tracker
+│   │   │   ├── CustomerDashboard.jsx  # Customer request tracker with cancel action
 │   │   │   ├── Login.jsx              # Sign-in page with quick demo accounts
 │   │   │   ├── RaiseRequest.jsx       # Request form with Multer image upload
 │   │   │   ├── Register.jsx           # Account creation with role selection
-│   │   │   ├── RequestDetails.jsx     # Detailed view & technician workflow controls
+│   │   │   ├── RequestDetails.jsx     # Detailed view, photo, timeline & status controls
 │   │   │   └── TechnicianDashboard.jsx# Technician task workspace
 │   │   ├── App.jsx                    # Root routing configuration
 │   │   ├── index.css                  # Custom design system tokens
 │   │   └── main.jsx
 │   ├── .env.example
+│   ├── .gitignore
 │   ├── package.json
 │   ├── vercel.json                    # Vercel SPA rewrite config
 │   └── vite.config.js
 ├── postman/
-│   └── Repair_Service_API.postman_collection.json # Complete API collection
+│   └── Repair_Service_API.postman_collection.json # Complete API collection with tests
 └── README.md
 ```
 
@@ -152,7 +161,7 @@ erDiagram
         string password "hashed (bcrypt)"
         string phone
         string address
-        string role "default: customer"
+        string role "customer"
         datetime createdAt
         datetime updatedAt
     }
@@ -164,7 +173,7 @@ erDiagram
         string password "hashed (bcrypt)"
         string phone
         string specialization
-        string role "default: technician"
+        string role "technician"
         datetime createdAt
         datetime updatedAt
     }
@@ -176,7 +185,9 @@ erDiagram
         string applianceType
         string brand
         string issueDescription
-        string photoPath "Multer upload path"
+        string photoPath "API route (/api/requests/:id/photo)"
+        buffer photo_data "Binary image in MongoDB Atlas"
+        string photo_contentType "image/png, image/jpeg, etc."
         string status "Assigned | In Progress | Completed | Cancelled"
         Array statusHistory "Array of { status, changedAt, changedBy, role, note }"
         datetime createdAt
@@ -188,21 +199,24 @@ erDiagram
 
 ## 5. Status Workflow State Machine
 
-The status transitions are enforced on the backend by `requestController.js`:
+The status transitions are strictly enforced on the backend by `requestController.js`:
 
 ```mermaid
 stateDiagram-v2
     [*] --> Assigned: Customer raises request & assigns technician
-    Assigned --> In_Progress: Technician starts repair
-    Assigned --> Cancelled: Customer/Technician cancels
-    In_Progress --> Completed: Technician marks job finished
-    In_Progress --> Cancelled: Technician cancels job
+    Assigned --> In_Progress: Technician starts repair work
+    Assigned --> Cancelled: Customer OR Assigned Technician cancels
+    In_Progress --> Completed: Assigned Technician marks job finished
+    In_Progress --> Cancelled: Assigned Technician cancels job
     Completed --> [*]: Terminal State
     Cancelled --> [*]: Terminal State
 ```
 
-- Any attempt by a technician to skip stages (e.g., `Assigned` &rarr; `Completed`) or update finished requests is rejected with HTTP `400 Bad Request`.
-- Every transition appends a record to `statusHistory` with the updater's name, role, timestamp, and optional remarks.
+### Transition Rules:
+1. **Customer Cancellation**: The owner customer can set status to `Cancelled` **only** while the current status is `Assigned`. Attempts to cancel from other stages or update to other statuses return HTTP `400 Bad Request`.
+2. **Technician Workflow**: The assigned technician can progress `Assigned` &rarr; `In Progress` &rarr; `Completed`, or `Cancelled`.
+3. **Immutability**: Terminal states (`Completed`, `Cancelled`) cannot be transitioned further.
+4. **Audit Trail**: Every change appends an immutable entry to `statusHistory` recording updater name, role, timestamp, and notes.
 
 ---
 
@@ -214,7 +228,7 @@ Base URL: `http://localhost:5000/api`
 
 | Method | Endpoint | Access | Description |
 |---|---|---|---|
-| `POST` | `/auth/register` | Public | Register customer or technician account |
+| `POST` | `/auth/register` | Public | Register customer or technician account (`role` strictly `'customer'` or `'technician'`) |
 | `POST` | `/auth/login` | Public | Login with email & password, returns JWT |
 | `GET` | `/auth/me` | Authenticated | Get current logged-in user profile |
 
@@ -222,23 +236,18 @@ Base URL: `http://localhost:5000/api`
 
 | Method | Endpoint | Access | Description |
 |---|---|---|---|
-| `GET` | `/technicians` | Authenticated | List all registered technicians for assignment |
+| `GET` | `/technicians` | Customer only | List all technicians with non-sensitive fields (`name`, `specialization`, `_id`) |
 
 ### 6.3 Repair Requests (`/api/requests`)
 
 | Method | Endpoint | Access | Description |
 |---|---|---|---|
-| `POST` | `/requests` | Customer only | Raise a repair request with appliance photo (`multipart/form-data`) |
+| `POST` | `/requests` | Customer only | Raise a repair request with appliance photo (`multipart/form-data`, stored in MongoDB) |
 | `GET` | `/requests/my` | Customer only | Get all requests raised by the logged-in customer |
 | `GET` | `/requests/assigned` | Technician only | Get all requests assigned to the logged-in technician |
-| `GET` | `/requests/:id` | Owner Customer or Assigned Technician | Get full request details, photo, and audit timeline |
-| `PATCH` | `/requests/:id/status` | Assigned Technician only | Update request status (`Assigned` &rarr; `In Progress` &rarr; `Completed`) |
-
-### 6.4 Static Uploads
-
-| Method | Endpoint | Access | Description |
-|---|---|---|---|
-| `GET` | `/uploads/:filename` | Public | Serve uploaded appliance photos |
+| `GET` | `/requests/:id` | Owner Customer or Assigned Technician | Get full request details, populated customer/technician, and audit timeline |
+| `GET` | `/requests/:id/photo` | Owner Customer or Assigned Technician | Stream appliance photo securely from MongoDB Atlas with correct `Content-Type` |
+| `PATCH` | `/requests/:id/status` | Assigned Technician or Owner Customer | Technician updates stage (`In Progress`, `Completed`, `Cancelled`); Customer cancels while `Assigned` |
 
 ---
 
@@ -274,7 +283,7 @@ Content-Type: application/json
 }
 ```
 
-### 7.3 Create Repair Request (with Multer Photo Upload)
+### 7.3 Create Repair Request (with Multer Photo Upload to MongoDB)
 ```http
 POST /api/requests
 Authorization: Bearer <customer_jwt_token>
@@ -308,23 +317,35 @@ photo: [Binary Image File] (image/jpeg, image/png, image/webp)
     "applianceType": "Air Conditioner (AC)",
     "brand": "Daikin Inverter",
     "issueDescription": "Indoor unit showing error code E4 and not cooling.",
-    "photoPath": "uploads/appliance-1717171234567-987654321.jpg",
+    "photoPath": "/api/requests/6659f93c7d18e9a2c34d5690/photo",
     "status": "Assigned",
     "statusHistory": [
       {
         "status": "Assigned",
-        "changedAt": "2026-09-29T18:00:00.000Z",
+        "changedAt": "2026-09-30T18:00:00.000Z",
         "changedBy": "Alice Customer (Customer)",
         "role": "customer",
         "note": "Repair request raised and assigned to technician Bob Tech."
       }
     ],
-    "createdAt": "2026-09-29T18:00:00.000Z"
+    "createdAt": "2026-09-30T18:00:00.000Z"
   }
 }
 ```
 
-### 7.4 Update Status by Assigned Technician
+### 7.4 Customer Cancel Request
+```http
+PATCH /api/requests/6659f93c7d18e9a2c34d5690/status
+Authorization: Bearer <customer_jwt_token>
+Content-Type: application/json
+
+{
+  "status": "Cancelled",
+  "note": "Issue resolved on its own."
+}
+```
+
+### 7.5 Technician Update Status
 ```http
 PATCH /api/requests/6659f93c7d18e9a2c34d5690/status
 Authorization: Bearer <technician_jwt_token>
@@ -343,19 +364,20 @@ Content-Type: application/json
 ### Prerequisites:
 - **Node.js**: v18+ or v20+
 - **npm**: v9+
-- **MongoDB**: Local MongoDB instance (`mongodb://127.0.0.1:27017`) or free MongoDB Atlas cloud cluster URI.
+- **MongoDB**: Local MongoDB instance (`mongodb://127.0.0.1:27017`) or MongoDB Atlas URI.
 
 ---
 
 ### Step 1: Clone or Navigate to the Project
 ```bash
-cd "Downloads/Backend Major Project/Kartik_Wagh"
+git clone https://github.com/kartikwagh21/Backend_Major_Project.git
+cd Backend_Major_Project/Kartik_Wagh
 ```
 
 ---
 
 ### Step 2: Backend Setup
-1. Navigate to the backend directory:
+1. Navigate to `backend`:
    ```bash
    cd backend
    ```
@@ -367,13 +389,12 @@ cd "Downloads/Backend Major Project/Kartik_Wagh"
    ```bash
    cp .env.example .env
    ```
-4. Set your MongoDB connection string in `backend/.env`:
+4. Set your configuration in `backend/.env`:
    ```env
    PORT=5000
    MONGO_URI=mongodb+srv://<username>:<password>@cluster.mongodb.net/repair_service?retryWrites=true&w=majority
-   JWT_SECRET=repair_service_super_secret_jwt_key_2026_case_study_132
+   JWT_SECRET=<generate_a_long_random_string>
    JWT_EXPIRES_IN=7d
-   UPLOAD_PATH=uploads
    MAX_FILE_SIZE_MB=5
    CLIENT_URL=http://localhost:5173
    ```
@@ -392,7 +413,7 @@ cd "Downloads/Backend Major Project/Kartik_Wagh"
 ### Step 3: Frontend Setup
 1. Open a new terminal and navigate to `frontend`:
    ```bash
-   cd "Downloads/Backend Major Project/Kartik_Wagh/frontend"
+   cd frontend
    ```
 2. Install dependencies:
    ```bash
@@ -405,7 +426,6 @@ cd "Downloads/Backend Major Project/Kartik_Wagh"
    Content of `frontend/.env`:
    ```env
    VITE_API_BASE_URL=http://localhost:5000/api
-   VITE_IMAGE_BASE_URL=http://localhost:5000/
    ```
 4. Start the frontend Vite development server:
    ```bash
@@ -417,23 +437,31 @@ cd "Downloads/Backend Major Project/Kartik_Wagh"
 
 ## 9. Running Automated Tests
 
-A complete automated end-to-end integration test suite is included to verify all positive and negative test cases against an in-memory MongoDB engine:
+A complete automated Jest + Supertest test suite with an in-memory MongoDB engine is included:
 
 ```bash
 cd backend
 npm test
 ```
 
-This verifies:
-- [x] Customer & Technician registration and login with bcrypt & JWT.
-- [x] Multer photo upload and valid `photoPath` storage.
-- [x] Referenced Mongoose population between `Customer`, `Technician`, and `RepairRequest`.
+### Verified Test Cases:
+- [x] Customer & Technician registration with bcrypt hashing and JWT generation.
+- [x] Reject invalid role registration with `400 Bad Request`.
+- [x] Authenticated `/me` user profile endpoint.
+- [x] Customer access to `/api/technicians` returning only non-sensitive fields (`name`, `specialization`, `_id`).
+- [x] Technician access to `/api/technicians` rejected with `403 Forbidden`.
+- [x] Multer memory storage photo upload saving Buffer directly in MongoDB.
+- [x] Missing appliance photo rejected with `400 Bad Request`.
 - [x] Customer receives only their own requests (`GET /api/requests/my`).
 - [x] Technician receives only assigned requests (`GET /api/requests/assigned`).
+- [x] Owner customer and assigned technician can stream photo via `GET /api/requests/:id/photo`.
+- [x] Stranger customer or technician viewing photo rejected with `403 Forbidden`.
+- [x] Stranger customer viewing request details rejected with `403 Forbidden`.
+- [x] Owner customer can cancel request while status is `Assigned`.
+- [x] Customer cancellation rejected with `400` if status has progressed to `In Progress`.
 - [x] Assigned technician updates status through valid transitions (`Assigned` &rarr; `In Progress` &rarr; `Completed`).
-- [x] **403 Forbidden** returned when an unassigned technician attempts to update another technician's request.
-- [x] **403 Forbidden** returned when a customer attempts to view another customer's request.
-- [x] **400 Bad Request** returned when attempting invalid status transitions or omitting the appliance photo.
+- [x] Unassigned technician status updates rejected with `403 Forbidden`.
+- [x] Invalid status transitions and updates to terminal states rejected with `400 Bad Request`.
 
 ---
 
@@ -444,36 +472,35 @@ This verifies:
 3. The collection is pre-configured with automatic environment variables:
    - When you execute **Login Customer**, the `customerToken` is automatically captured.
    - When you execute **Login Technician**, the `technicianToken` is automatically captured.
-   - When you create a request, the `requestId` is automatically updated for subsequent test calls.
+   - When you create a request, the `requestId` is automatically updated for subsequent photo, status, and cancellation test calls.
 
 ---
 
 ## 11. Deployment Guide
 
-### 11.1 Backend Deployment (Render / Railway)
+### 11.1 Backend Deployment (Render)
 1. Push the code to GitHub.
-2. In **Render** or **Railway**, create a new **Web Service** pointing to the `backend/` directory.
+2. In **Render**, create a new **Web Service** pointing to the repository with Root Directory `Kartik_Wagh/backend`.
 3. Configure build & start commands:
    - **Build Command**: `npm install`
    - **Start Command**: `node server.js`
-4. Configure Environment Variables in the cloud dashboard:
-   - `PORT`: `5000`
+4. Configure Environment Variables in Render Dashboard:
+   - `PORT`: `5000` (or leave default assigned by Render)
    - `MONGO_URI`: `mongodb+srv://<user>:<password>@cluster.mongodb.net/repair_service`
-   - `JWT_SECRET`: `<strong_secret>`
+   - `JWT_SECRET`: `<generate_a_long_random_string>`
    - `JWT_EXPIRES_IN`: `7d`
-   - `UPLOAD_PATH`: `uploads`
-   - `CLIENT_URL`: `https://your-frontend.vercel.app`
-5. *Note on File Storage*: On free cloud tiers (e.g. Render/Railway), local disk is ephemeral. For long-term production, an external object store such as Cloudinary or AWS S3 can be plugged into `uploadMiddleware.js`.
+   - `MAX_FILE_SIZE_MB`: `5`
+   - `CLIENT_URL`: `https://backend-major-project-dusky.vercel.app`
+5. *Image Storage*: Uploaded photos are stored directly in MongoDB Atlas as binary buffers and streamed via `/api/requests/:id/photo`. There is no ephemeral-disk data loss across server restarts or redeployments.
 
-### 11.2 Frontend Deployment (Vercel / Netlify)
-1. In **Vercel** or **Netlify**, create a new project and set the Root Directory to `frontend/`.
+### 11.2 Frontend Deployment (Vercel)
+1. In **Vercel**, create a new project and set the Root Directory to `Kartik_Wagh/frontend`.
 2. Configure build settings:
    - **Build Command**: `npm run build`
    - **Output Directory**: `dist`
 3. Add Environment Variable:
-   - `VITE_API_BASE_URL`: `https://your-backend.onrender.com/api`
-   - `VITE_IMAGE_BASE_URL`: `https://your-backend.onrender.com/`
-4. The included `vercel.json` and `public/_redirects` ensure SPA client-side routing works seamlessly across all page refreshes.
+   - `VITE_API_BASE_URL`: `https://backend-major-project-tlhb.onrender.com/api`
+4. The included `vercel.json` ensures SPA client-side routing works seamlessly across all page refreshes.
 
 ---
 
@@ -481,9 +508,9 @@ This verifies:
 
 - [x] **Customer Schema**: `name`, `email` (unique), `password` (hashed with bcrypt, `select: false`), `phone`, `address`, `role: 'customer'`, timestamps.
 - [x] **Technician Schema**: `name`, `email` (unique), `password` (hashed, `select: false`), `phone`, `specialization`, `role: 'technician'`, timestamps.
-- [x] **RepairRequest Schema**: `customer` (ref `Customer`), `technician` (ref `Technician`), `applianceType`, `brand`, `issueDescription` (min 10 chars), `photoPath` (Multer path), `status` (enum), `statusHistory` audit array, timestamps.
-- [x] **Multer Upload**: Configured with diskStorage, unique filenames, 5MB size limit, JPEG/PNG/WebP mime filter, static exposure at `/uploads`, and automatic file cleanup on validation error.
-- [x] **Authorization**: JWT authentication middleware, role-based checks (`authorizeRoles`), and ownership/assignment checks (`checkRequestAccess`, `checkTechnicianAssignment`).
-- [x] **Status Workflow**: Valid transition enforcement (`Assigned` &rarr; `In Progress` &rarr; `Completed`) with immutable history recording.
-- [x] **React Frontend**: Full UI with login/register role toggle, Customer Dashboard with photo thumbnails & metrics, Technician Workspace with workflow buttons, Raise Request form with photo preview, and Request Details page with audit timeline and lightbox.
+- [x] **RepairRequest Schema**: `customer` (ref `Customer`), `technician` (ref `Technician`), `applianceType`, `brand`, `issueDescription` (min 10 chars), `photoPath` (`/api/requests/:id/photo`), `photo.data` (Buffer), `photo.contentType`, `status` (enum), `statusHistory` audit array, timestamps.
+- [x] **Multer Upload**: Configured with `memoryStorage`, 5MB size limit, JPEG/PNG/WebP/SVG filter, stored in MongoDB Atlas, and streamed through authenticated endpoint `GET /api/requests/:id/photo`.
+- [x] **Authorization**: JWT authentication middleware, role-based checks (`authorizeRoles`), and ownership/assignment checks (`checkRequestAccess`).
+- [x] **Status Workflow & Customer Cancel**: State machine enforcement (`Assigned` &rarr; `In Progress` &rarr; `Completed`) with Customer Cancellation allowed from `Assigned` state and immutable history recording.
+- [x] **React Frontend**: Full UI with login/register role toggle, Customer Dashboard with photo thumbnails, metrics, and cancel action, Technician Workspace with workflow buttons, Raise Request form with photo preview, and Request Details page with audit timeline and secure photo lightbox.
 - [x] **Postman Collection & Documentation**: Complete Postman collection with test scripts and comprehensive README.
