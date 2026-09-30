@@ -59,11 +59,17 @@ const CustomerDashboard = () => {
   };
 
   const getImageUrl = (photoPath) => {
-    if (!photoPath) return '';
-    if (photoPath.startsWith('http')) return photoPath;
+    if (!photoPath) return '/uploads/voltas_1.5ton_split_ac.svg';
+    if (photoPath.startsWith('http://') || photoPath.startsWith('https://')) return photoPath;
     const cleanPath = photoPath.startsWith('/') ? photoPath.slice(1) : photoPath;
-    const base = import.meta.env.VITE_IMAGE_BASE_URL || 'http://localhost:5001/';
-    return `${base.endsWith('/') ? base : base + '/'}${cleanPath}`;
+
+    let base = import.meta.env.VITE_IMAGE_BASE_URL || import.meta.env.VITE_API_BASE_URL;
+    if (base) {
+      base = base.replace(/\/api\/?$/, '');
+    } else {
+      base = window.location.hostname === 'localhost' ? 'http://localhost:5001' : 'https://backend-major-project-tlhb.onrender.com';
+    }
+    return `${base.replace(/\/+$/, '')}/${cleanPath}`;
   };
 
   return (
@@ -273,7 +279,11 @@ const CustomerDashboard = () => {
                     objectFit: 'cover',
                   }}
                   onError={(e) => {
-                    e.currentTarget.style.display = 'none';
+                    const fallbackPath = `/${req.photoPath?.startsWith('/') ? req.photoPath.slice(1) : req.photoPath}`;
+                    if (!e.currentTarget.dataset.retried) {
+                      e.currentTarget.dataset.retried = 'true';
+                      e.currentTarget.src = fallbackPath;
+                    }
                   }}
                 />
                 <div style={{ position: 'absolute', top: '10px', right: '10px' }}>
