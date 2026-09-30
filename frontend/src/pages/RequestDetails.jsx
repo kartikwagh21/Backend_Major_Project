@@ -103,23 +103,9 @@ const RequestDetails = () => {
     }
   };
 
-  const getImageUrl = (photoPath) => {
-    if (!photoPath) return '/uploads/voltas_1.5ton_split_ac.svg';
-    if (photoPath.startsWith('http://') || photoPath.startsWith('https://')) return photoPath;
-    const cleanPath = photoPath.startsWith('/') ? photoPath.slice(1) : photoPath;
-
-    let base = import.meta.env.VITE_IMAGE_BASE_URL || import.meta.env.VITE_API_BASE_URL;
-    if (base) {
-      base = base.replace(/\/api\/?$/, '');
-    } else {
-      base = window.location.hostname === 'localhost' ? 'http://localhost:5001' : 'https://backend-major-project-tlhb.onrender.com';
-    }
-    return `${base.replace(/\/+$/, '')}/${cleanPath}`;
-  };
-
   if (loading) {
     return (
-      <div style={{ textAlign: 'center', padding: '4rem 0', color: '#64748b' }}>
+      <div style={{ textAlign: 'center', padding: '4rem 0', color: '#6B7280' }}>
         <p>Loading request details...</p>
       </div>
     );
@@ -128,13 +114,13 @@ const RequestDetails = () => {
   if (error || !request) {
     return (
       <div style={{ maxWidth: '500px', margin: '3rem auto' }}>
-        <div className="clean-card" style={{ padding: '2rem', textAlign: 'center', backgroundColor: '#111726' }}>
-          <ShieldAlert size={40} color="#f87171" style={{ margin: '0 auto 1rem', display: 'block' }} />
-          <h2 style={{ fontSize: '1.25rem', marginBottom: '0.5rem', color: '#f8fafc' }}>Access Restricted</h2>
-          <p style={{ color: '#94a3b8', fontSize: '0.875rem', marginBottom: '1.25rem' }}>
+        <div className="clean-card" style={{ padding: '2rem', textAlign: 'center', backgroundColor: '#FFFFFF' }}>
+          <ShieldAlert size={40} color="#DC2626" style={{ margin: '0 auto 1rem', display: 'block' }} />
+          <h2 style={{ fontSize: '1.25rem', marginBottom: '0.5rem', color: '#1F2937' }}>Access Restricted</h2>
+          <p style={{ color: '#4B5563', fontSize: '0.875rem', marginBottom: '1.25rem' }}>
             {error || 'This record does not exist or you do not have permission to view it.'}
           </p>
-          <Link to={isTechnician ? '/technician' : '/dashboard'} className="btn btn-primary">
+          <Link to={isTechnician ? '/technician' : '/dashboard'} className="btn btn-primary" style={{ backgroundColor: '#2563EB' }}>
             <ArrowLeft size={15} />
             <span>Return to Dashboard</span>
           </Link>
@@ -155,10 +141,11 @@ const RequestDetails = () => {
           display: 'inline-flex',
           alignItems: 'center',
           gap: '0.4rem',
-          color: '#94a3b8',
+          color: '#4B5563',
           fontSize: '0.85rem',
           fontWeight: 600,
           marginBottom: '1rem',
+          textDecoration: 'none',
         }}
       >
         <ArrowLeft size={15} />
@@ -176,14 +163,15 @@ const RequestDetails = () => {
           justifyContent: 'space-between',
           flexWrap: 'wrap',
           gap: '1rem',
-          backgroundColor: '#111726',
+          backgroundColor: '#FFFFFF',
+          border: '1px solid #E5E7EB',
         }}
       >
         <div>
-          <div style={{ fontSize: '0.75rem', color: '#60a5fa', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+          <div style={{ fontSize: '0.75rem', color: '#2563EB', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
             {request.brand} • REQUEST #{request._id.slice(-6).toUpperCase()}
           </div>
-          <h1 style={{ fontSize: '1.4rem', color: '#f8fafc', marginTop: '0.15rem' }}>
+          <h1 style={{ fontSize: '1.4rem', color: '#1F2937', marginTop: '0.15rem' }}>
             {request.applianceType}
           </h1>
         </div>
@@ -196,9 +184,9 @@ const RequestDetails = () => {
         {/* Left Column */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
           {/* Appliance Image */}
-          <div className="clean-card" style={{ padding: '1.25rem', backgroundColor: '#111726' }}>
+          <div className="clean-card" style={{ padding: '1.25rem', backgroundColor: '#FFFFFF', border: '1px solid #E5E7EB' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
-              <h3 style={{ fontSize: '0.95rem', color: '#f8fafc' }}>Appliance Inspection Photo</h3>
+              <h3 style={{ fontSize: '0.95rem', color: '#1F2937' }}>Appliance Inspection Photo</h3>
               <button
                 type="button"
                 onClick={() =>
@@ -220,8 +208,8 @@ const RequestDetails = () => {
                 position: 'relative',
                 borderRadius: 'var(--radius-sm)',
                 overflow: 'hidden',
-                backgroundColor: '#0c121e',
-                border: '1px solid #1e293d',
+                backgroundColor: '#F5F6F8',
+                border: '1px solid #E5E7EB',
                 cursor: 'pointer',
                 maxHeight: '280px',
                 display: 'flex',
@@ -244,23 +232,23 @@ const RequestDetails = () => {
           </div>
 
           {/* Issue */}
-          <div className="clean-card" style={{ padding: '1.25rem', backgroundColor: '#111726' }}>
-            <h3 style={{ fontSize: '0.95rem', color: '#f8fafc', marginBottom: '0.5rem' }}>Reported Problem</h3>
+          <div className="clean-card" style={{ padding: '1.25rem', backgroundColor: '#FFFFFF', border: '1px solid #E5E7EB' }}>
+            <h3 style={{ fontSize: '0.95rem', color: '#1F2937', marginBottom: '0.5rem' }}>Reported Problem</h3>
             <p
               style={{
-                color: '#cbd5e1',
+                color: '#1F2937',
                 fontSize: '0.9rem',
                 lineHeight: 1.5,
-                backgroundColor: '#0c121e',
+                backgroundColor: '#F9FAFB',
                 padding: '0.85rem',
                 borderRadius: 'var(--radius-xs)',
-                border: '1px solid #1e293d',
+                border: '1px solid #E5E7EB',
               }}
             >
               {request.issueDescription}
             </p>
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', color: '#64748b', fontSize: '0.8rem', marginTop: '0.75rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', color: '#6B7280', fontSize: '0.8rem', marginTop: '0.75rem' }}>
               <Calendar size={14} />
               <span>Created on {new Date(request.createdAt).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' })}</span>
             </div>
@@ -268,25 +256,25 @@ const RequestDetails = () => {
 
           {/* Contact Cards */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-            <div className="clean-card" style={{ padding: '1rem', backgroundColor: '#111726' }}>
-              <div style={{ fontSize: '0.7rem', color: '#64748b', fontWeight: 700, textTransform: 'uppercase', marginBottom: '0.25rem' }}>
+            <div className="clean-card" style={{ padding: '1rem', backgroundColor: '#FFFFFF', border: '1px solid #E5E7EB' }}>
+              <div style={{ fontSize: '0.7rem', color: '#6B7280', fontWeight: 700, textTransform: 'uppercase', marginBottom: '0.25rem' }}>
                 CUSTOMER DETAILS
               </div>
-              <div style={{ fontWeight: 700, fontSize: '0.925rem', color: '#f8fafc' }}>{request.customer?.name}</div>
-              <div style={{ fontSize: '0.8rem', color: '#94a3b8', marginTop: '0.35rem', display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+              <div style={{ fontWeight: 700, fontSize: '0.925rem', color: '#1F2937' }}>{request.customer?.name}</div>
+              <div style={{ fontSize: '0.8rem', color: '#4B5563', marginTop: '0.35rem', display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}><Phone size={13} /> {request.customer?.phone}</div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}><Mail size={13} /> {request.customer?.email}</div>
                 {request.customer?.address && <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.35rem' }}><MapPin size={13} style={{ marginTop: '2px', flexShrink: 0 }} /> {request.customer?.address}</div>}
               </div>
             </div>
 
-            <div className="clean-card" style={{ padding: '1rem', backgroundColor: '#111726' }}>
-              <div style={{ fontSize: '0.7rem', color: '#64748b', fontWeight: 700, textTransform: 'uppercase', marginBottom: '0.25rem' }}>
+            <div className="clean-card" style={{ padding: '1rem', backgroundColor: '#FFFFFF', border: '1px solid #E5E7EB' }}>
+              <div style={{ fontSize: '0.7rem', color: '#6B7280', fontWeight: 700, textTransform: 'uppercase', marginBottom: '0.25rem' }}>
                 ASSIGNED TECHNICIAN
               </div>
-              <div style={{ fontWeight: 700, fontSize: '0.925rem', color: '#f8fafc' }}>{request.technician?.name}</div>
-              <div style={{ fontSize: '0.8rem', color: '#94a3b8', marginTop: '0.35rem', display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
-                <div style={{ color: '#c084fc', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.35rem' }}><Wrench size={13} /> {request.technician?.specialization}</div>
+              <div style={{ fontWeight: 700, fontSize: '0.925rem', color: '#1F2937' }}>{request.technician?.name}</div>
+              <div style={{ fontSize: '0.8rem', color: '#4B5563', marginTop: '0.35rem', display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                <div style={{ color: '#2563EB', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.35rem' }}><Wrench size={13} /> {request.technician?.specialization}</div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}><Phone size={13} /> {request.technician?.phone}</div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}><Mail size={13} /> {request.technician?.email}</div>
               </div>
@@ -298,11 +286,11 @@ const RequestDetails = () => {
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
           {/* Customer Cancellation Panel */}
           {isCustomer && request.status === 'Assigned' && (
-            <div className="clean-card" style={{ padding: '1.25rem', borderLeft: '4px solid #ef4444', backgroundColor: '#111726' }}>
-              <h3 style={{ fontSize: '0.95rem', color: '#f8fafc', marginBottom: '0.5rem' }}>
+            <div className="clean-card" style={{ padding: '1.25rem', borderLeft: '4px solid #DC2626', backgroundColor: '#FFFFFF', border: '1px solid #E5E7EB' }}>
+              <h3 style={{ fontSize: '0.95rem', color: '#1F2937', marginBottom: '0.5rem' }}>
                 Cancel Repair Request
               </h3>
-              <p style={{ fontSize: '0.825rem', color: '#94a3b8', marginBottom: '1rem' }}>
+              <p style={{ fontSize: '0.825rem', color: '#4B5563', marginBottom: '1rem' }}>
                 You may cancel this request while it is in Assigned status.
               </p>
 
@@ -345,13 +333,14 @@ const RequestDetails = () => {
                 }}
               >
                 <div className="form-group">
-                  <label className="form-label">Cancellation Reason (Optional)</label>
+                  <label className="form-label" style={{ color: '#374151' }}>Cancellation Reason (Optional)</label>
                   <input
                     type="text"
                     className="form-control"
                     placeholder="e.g. Issue resolved on its own"
                     value={statusNote}
                     onChange={(e) => setStatusNote(e.target.value)}
+                    style={{ backgroundColor: '#FFFFFF', border: '1px solid #D1D5DB', color: '#1F2937' }}
                   />
                 </div>
 
@@ -370,8 +359,8 @@ const RequestDetails = () => {
 
           {/* Technician Action Panel */}
           {isAssignedTech && (
-            <div className="clean-card" style={{ padding: '1.25rem', borderLeft: '4px solid #2563eb', backgroundColor: '#111726' }}>
-              <h3 style={{ fontSize: '0.95rem', color: '#f8fafc', marginBottom: '0.5rem' }}>
+            <div className="clean-card" style={{ padding: '1.25rem', borderLeft: '4px solid #2563EB', backgroundColor: '#FFFFFF', border: '1px solid #E5E7EB' }}>
+              <h3 style={{ fontSize: '0.95rem', color: '#1F2937', marginBottom: '0.5rem' }}>
                 Update Job Status
               </h3>
 
@@ -392,12 +381,13 @@ const RequestDetails = () => {
               {allowedTransitions.length > 0 ? (
                 <form onSubmit={handleStatusUpdate}>
                   <div className="form-group">
-                    <label className="form-label">Next Status State</label>
+                    <label className="form-label" style={{ color: '#374151' }}>Next Status State</label>
                     <select
                       className="form-control"
                       value={selectedNextStatus}
                       onChange={(e) => setSelectedNextStatus(e.target.value)}
                       required
+                      style={{ backgroundColor: '#FFFFFF', border: '1px solid #D1D5DB', color: '#1F2937' }}
                     >
                       {allowedTransitions.map((st) => (
                         <option key={st} value={st}>
@@ -408,27 +398,28 @@ const RequestDetails = () => {
                   </div>
 
                   <div className="form-group">
-                    <label className="form-label">Service Log / Progress Note</label>
+                    <label className="form-label" style={{ color: '#374151' }}>Service Log / Progress Note</label>
                     <textarea
                       className="form-control"
                       rows={2}
                       placeholder="e.g. Completed initial diagnostic, replaced capacitor."
                       value={statusNote}
                       onChange={(e) => setStatusNote(e.target.value)}
+                      style={{ backgroundColor: '#FFFFFF', border: '1px solid #D1D5DB', color: '#1F2937' }}
                     />
                   </div>
 
                   <button
                     type="submit"
                     className="btn btn-primary"
-                    style={{ width: '100%', padding: '0.6rem' }}
+                    style={{ width: '100%', padding: '0.6rem', backgroundColor: '#2563EB' }}
                     disabled={updating}
                   >
                     {updating ? 'Updating...' : `Transition to ${selectedNextStatus}`}
                   </button>
                 </form>
               ) : (
-                <div style={{ fontSize: '0.85rem', color: '#64748b' }}>
+                <div style={{ fontSize: '0.85rem', color: '#6B7280' }}>
                   This request has reached terminal state: <strong>{request.status}</strong>.
                 </div>
               )}
@@ -436,11 +427,11 @@ const RequestDetails = () => {
           )}
 
           {/* Timeline Card */}
-          <div className="clean-card" style={{ padding: '1.25rem', backgroundColor: '#111726' }}>
-            <h3 style={{ fontSize: '0.95rem', color: '#f8fafc', marginBottom: '0.25rem' }}>
+          <div className="clean-card" style={{ padding: '1.25rem', backgroundColor: '#FFFFFF', border: '1px solid #E5E7EB' }}>
+            <h3 style={{ fontSize: '0.95rem', color: '#1F2937', marginBottom: '0.25rem' }}>
               Status Audit Trail
             </h3>
-            <p style={{ color: '#64748b', fontSize: '0.8rem', marginBottom: '0.75rem' }}>
+            <p style={{ color: '#6B7280', fontSize: '0.8rem', marginBottom: '0.75rem' }}>
               Timestamped progression history for this repair lifecycle
             </p>
 

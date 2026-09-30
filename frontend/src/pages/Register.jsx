@@ -71,18 +71,18 @@ const Register = () => {
         className="clean-card"
         style={{
           padding: '2.5rem 2.25rem',
-          backgroundColor: '#111726',
+          backgroundColor: '#FFFFFF',
           borderRadius: '14px',
-          border: '1px solid #1e293d',
-          boxShadow: '0 10px 30px -10px rgba(0, 0, 0, 0.5)',
+          border: '1px solid #E5E7EB',
+          boxShadow: 'var(--shadow-md)',
         }}
       >
         {/* Header */}
         <div style={{ marginBottom: '1.75rem', textAlign: 'center' }}>
-          <h1 style={{ fontSize: '1.5rem', fontWeight: 700, color: '#f8fafc', marginBottom: '0.4rem' }}>
+          <h1 style={{ fontSize: '1.5rem', fontWeight: 700, color: '#1F2937', marginBottom: '0.4rem' }}>
             Create ServiceDesk Account
           </h1>
-          <p style={{ color: '#94a3b8', fontSize: '0.875rem' }}>
+          <p style={{ color: '#4B5563', fontSize: '0.875rem' }}>
             Choose your account role and enter your details
           </p>
         </div>
@@ -92,8 +92,8 @@ const Register = () => {
           style={{
             display: 'grid',
             gridTemplateColumns: '1fr 1fr',
-            backgroundColor: '#0c121e',
-            border: '1px solid #1e293d',
+            backgroundColor: '#F3F4F6',
+            border: '1px solid #E5E7EB',
             padding: '4px',
             borderRadius: '8px',
             gap: '4px',
@@ -108,15 +108,15 @@ const Register = () => {
               fontSize: '0.875rem',
               fontWeight: 600,
               borderRadius: '6px',
-              border: role === 'customer' ? '1px solid #2a374f' : '1px solid transparent',
+              border: role === 'customer' ? '1px solid #D1D5DB' : '1px solid transparent',
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               gap: '0.45rem',
-              backgroundColor: role === 'customer' ? '#182032' : 'transparent',
-              color: role === 'customer' ? '#f8fafc' : '#94a3b8',
-              boxShadow: role === 'customer' ? '0 1px 3px rgba(0,0,0,0.4)' : 'none',
+              backgroundColor: role === 'customer' ? '#FFFFFF' : 'transparent',
+              color: role === 'customer' ? '#1F2937' : '#4B5563',
+              boxShadow: role === 'customer' ? '0 1px 2px rgba(0,0,0,0.05)' : 'none',
               transition: 'all 0.15s ease',
             }}
           >
@@ -131,15 +131,15 @@ const Register = () => {
               fontSize: '0.875rem',
               fontWeight: 600,
               borderRadius: '6px',
-              border: role === 'technician' ? '1px solid #2a374f' : '1px solid transparent',
+              border: role === 'technician' ? '1px solid #D1D5DB' : '1px solid transparent',
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               gap: '0.45rem',
-              backgroundColor: role === 'technician' ? '#182032' : 'transparent',
-              color: role === 'technician' ? '#f8fafc' : '#94a3b8',
-              boxShadow: role === 'technician' ? '0 1px 3px rgba(0,0,0,0.4)' : 'none',
+              backgroundColor: role === 'technician' ? '#FFFFFF' : 'transparent',
+              color: role === 'technician' ? '#1F2937' : '#4B5563',
+              boxShadow: role === 'technician' ? '0 1px 2px rgba(0,0,0,0.05)' : 'none',
               transition: 'all 0.15s ease',
             }}
           >
@@ -158,7 +158,7 @@ const Register = () => {
 
         <form onSubmit={handleSubmit}>
           <div className="form-group" style={{ marginBottom: '1.15rem' }}>
-            <label className="form-label" style={{ color: '#cbd5e1', fontSize: '0.875rem', fontWeight: 500 }}>
+            <label className="form-label" style={{ color: '#374151', fontSize: '0.875rem', fontWeight: 500 }}>
               Full Name
             </label>
             <input
@@ -170,9 +170,9 @@ const Register = () => {
               onChange={handleChange}
               required
               style={{
-                backgroundColor: '#0c121e',
-                border: '1px solid #1e293d',
-                color: '#f8fafc',
+                backgroundColor: '#FFFFFF',
+                border: '1px solid #D1D5DB',
+                color: '#1F2937',
                 padding: '0.65rem 0.85rem',
                 borderRadius: '8px',
               }}
@@ -181,7 +181,7 @@ const Register = () => {
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', marginBottom: '1.15rem' }}>
             <div className="form-group" style={{ marginBottom: 0 }}>
-              <label className="form-label" style={{ color: '#cbd5e1', fontSize: '0.875rem', fontWeight: 500 }}>
+              <label className="form-label" style={{ color: '#374151', fontSize: '0.875rem', fontWeight: 500 }}>
                 Email Address
               </label>
               <input
@@ -193,9 +193,9 @@ const Register = () => {
                 onChange={handleChange}
                 required
                 style={{
-                  backgroundColor: '#0c121e',
-                  border: '1px solid #1e293d',
-                  color: '#f8fafc',
+                  backgroundColor: '#FFFFFF',
+                  border: '1px solid #D1D5DB',
+                  color: '#1F2937',
                   padding: '0.65rem 0.85rem',
                   borderRadius: '8px',
                 }}
@@ -203,7 +203,7 @@ const Register = () => {
             </div>
 
             <div className="form-group" style={{ marginBottom: 0 }}>
-              <label className="form-label" style={{ color: '#cbd5e1', fontSize: '0.875rem', fontWeight: 500 }}>
+              <label className="form-label" style={{ color: '#374151', fontSize: '0.875rem', fontWeight: 500 }}>
                 Phone Number
               </label>
               <input
@@ -215,9 +215,9 @@ const Register = () => {
                 onChange={handleChange}
                 required
                 style={{
-                  backgroundColor: '#0c121e',
-                  border: '1px solid #1e293d',
-                  color: '#f8fafc',
+                  backgroundColor: '#FFFFFF',
+                  border: '1px solid #D1D5DB',
+                  color: '#1F2937',
                   padding: '0.65rem 0.85rem',
                   borderRadius: '8px',
                 }}
@@ -226,7 +226,7 @@ const Register = () => {
           </div>
 
           <div className="form-group" style={{ marginBottom: '1.15rem' }}>
-            <label className="form-label" style={{ color: '#cbd5e1', fontSize: '0.875rem', fontWeight: 500 }}>
+            <label className="form-label" style={{ color: '#374151', fontSize: '0.875rem', fontWeight: 500 }}>
               Password (min. 6 characters)
             </label>
             <input
@@ -239,9 +239,9 @@ const Register = () => {
               minLength={6}
               required
               style={{
-                backgroundColor: '#0c121e',
-                border: '1px solid #1e293d',
-                color: '#f8fafc',
+                backgroundColor: '#FFFFFF',
+                border: '1px solid #D1D5DB',
+                color: '#1F2937',
                 padding: '0.65rem 0.85rem',
                 borderRadius: '8px',
               }}
@@ -250,7 +250,7 @@ const Register = () => {
 
           {role === 'technician' ? (
             <div className="form-group" style={{ marginBottom: '1.5rem' }}>
-              <label className="form-label" style={{ color: '#cbd5e1', fontSize: '0.875rem', fontWeight: 500 }}>
+              <label className="form-label" style={{ color: '#374151', fontSize: '0.875rem', fontWeight: 500 }}>
                 Specialization Area
               </label>
               <select
@@ -260,9 +260,9 @@ const Register = () => {
                 onChange={handleChange}
                 required
                 style={{
-                  backgroundColor: '#0c121e',
-                  border: '1px solid #1e293d',
-                  color: '#f8fafc',
+                  backgroundColor: '#FFFFFF',
+                  border: '1px solid #D1D5DB',
+                  color: '#1F2937',
                   padding: '0.65rem 0.85rem',
                   borderRadius: '8px',
                 }}
@@ -276,7 +276,7 @@ const Register = () => {
             </div>
           ) : (
             <div className="form-group" style={{ marginBottom: '1.5rem' }}>
-              <label className="form-label" style={{ color: '#cbd5e1', fontSize: '0.875rem', fontWeight: 500 }}>
+              <label className="form-label" style={{ color: '#374151', fontSize: '0.875rem', fontWeight: 500 }}>
                 Service Address (Mumbai / MMR)
               </label>
               <input
@@ -287,9 +287,9 @@ const Register = () => {
                 value={formData.address}
                 onChange={handleChange}
                 style={{
-                  backgroundColor: '#0c121e',
-                  border: '1px solid #1e293d',
-                  color: '#f8fafc',
+                  backgroundColor: '#FFFFFF',
+                  border: '1px solid #D1D5DB',
+                  color: '#1F2937',
                   padding: '0.65rem 0.85rem',
                   borderRadius: '8px',
                 }}
@@ -301,7 +301,7 @@ const Register = () => {
             type="submit"
             style={{
               width: '100%',
-              backgroundColor: '#16a34a',
+              backgroundColor: '#2563EB',
               color: '#ffffff',
               border: 'none',
               padding: '0.75rem',
@@ -312,11 +312,11 @@ const Register = () => {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              boxShadow: '0 2px 8px rgba(22, 163, 74, 0.35)',
+              boxShadow: '0 1px 2px rgba(37, 99, 235, 0.2)',
               transition: 'all 0.15s ease',
             }}
-            onMouseOver={(e) => (e.currentTarget.style.backgroundColor = '#15803d')}
-            onMouseOut={(e) => (e.currentTarget.style.backgroundColor = '#16a34a')}
+            onMouseOver={(e) => (e.currentTarget.style.backgroundColor = '#1D4ED8')}
+            onMouseOut={(e) => (e.currentTarget.style.backgroundColor = '#2563EB')}
             disabled={loading}
           >
             {loading ? 'Creating Account...' : `Register as ${role === 'customer' ? 'Customer' : 'Technician'}`}
@@ -324,9 +324,9 @@ const Register = () => {
         </form>
 
         {/* Link to Login */}
-        <div style={{ textAlign: 'center', marginTop: '1.75rem', fontSize: '0.875rem', color: '#94a3b8' }}>
+        <div style={{ textAlign: 'center', marginTop: '1.75rem', fontSize: '0.875rem', color: '#4B5563' }}>
           Already have an account?{' '}
-          <Link to="/login" style={{ color: '#38bdf8', fontWeight: 600, textDecoration: 'none' }}>
+          <Link to="/login" style={{ color: '#2563EB', fontWeight: 600, textDecoration: 'none' }}>
             Sign in
           </Link>
         </div>

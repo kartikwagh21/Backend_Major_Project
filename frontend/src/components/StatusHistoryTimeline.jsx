@@ -5,7 +5,7 @@ import { Calendar, User, FileText } from 'lucide-react';
 const StatusHistoryTimeline = ({ history = [] }) => {
   if (!history || history.length === 0) {
     return (
-      <div style={{ color: '#64748b', fontSize: '0.85rem', fontStyle: 'italic' }}>
+      <div style={{ color: '#6B7280', fontSize: '0.85rem', fontStyle: 'italic' }}>
         No status history recorded yet.
       </div>
     );
@@ -21,7 +21,7 @@ const StatusHistoryTimeline = ({ history = [] }) => {
           top: '8px',
           bottom: '8px',
           width: '2px',
-          backgroundColor: '#1e293d',
+          backgroundColor: '#E5E7EB',
         }}
       />
 
@@ -37,15 +37,15 @@ const StatusHistoryTimeline = ({ history = [] }) => {
                 width: '12px',
                 height: '12px',
                 borderRadius: '50%',
-                backgroundColor: '#111726',
-                border: '2px solid #3b82f6',
+                backgroundColor: '#FFFFFF',
+                border: '2px solid #2563EB',
               }}
             />
 
             <div
               style={{
-                backgroundColor: '#0c121e',
-                border: '1px solid #1e293d',
+                backgroundColor: '#F9FAFB',
+                border: '1px solid #E5E7EB',
                 borderRadius: '8px',
                 padding: '0.75rem',
               }}
@@ -68,7 +68,7 @@ const StatusHistoryTimeline = ({ history = [] }) => {
                     alignItems: 'center',
                     gap: '0.35rem',
                     fontSize: '0.75rem',
-                    color: '#64748b',
+                    color: '#6B7280',
                   }}
                 >
                   <Calendar size={12} />
@@ -87,12 +87,12 @@ const StatusHistoryTimeline = ({ history = [] }) => {
                   alignItems: 'center',
                   gap: '0.35rem',
                   fontSize: '0.8rem',
-                  color: '#94a3b8',
+                  color: '#4B5563',
                 }}
               >
                 <User size={12} />
                 <span>
-                  Updated by: <strong style={{ color: '#f8fafc' }}>{item.changedBy}</strong>
+                  Updated by: <strong style={{ color: '#1F2937' }}>{item.changedBy}</strong>
                 </span>
               </div>
 
@@ -100,9 +100,9 @@ const StatusHistoryTimeline = ({ history = [] }) => {
                 <div
                   style={{
                     fontSize: '0.8rem',
-                    color: '#cbd5e1',
-                    backgroundColor: '#111726',
-                    border: '1px solid #1e293d',
+                    color: '#1F2937',
+                    backgroundColor: '#FFFFFF',
+                    border: '1px solid #E5E7EB',
                     padding: '0.4rem 0.55rem',
                     borderRadius: '4px',
                     marginTop: '0.35rem',

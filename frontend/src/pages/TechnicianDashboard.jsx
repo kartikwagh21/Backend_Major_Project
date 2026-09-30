@@ -100,12 +100,12 @@ const TechnicianDashboard = () => {
       {/* Header */}
       <div style={{ marginBottom: '1.75rem' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '0.2rem', flexWrap: 'wrap' }}>
-          <h1 style={{ fontSize: '1.5rem', color: '#f8fafc' }}>Technician Workspace</h1>
+          <h1 style={{ fontSize: '1.5rem', color: '#1F2937' }}>Technician Workspace</h1>
           <span
             style={{
-              backgroundColor: 'rgba(37, 99, 235, 0.15)',
-              color: '#60a5fa',
-              border: '1px solid rgba(59, 130, 246, 0.35)',
+              backgroundColor: '#EFF6FF',
+              color: '#2563EB',
+              border: '1px solid #BFDBFE',
               padding: '0.2rem 0.65rem',
               borderRadius: '6px',
               fontSize: '0.75rem',
@@ -115,7 +115,7 @@ const TechnicianDashboard = () => {
             {user?.specialization || 'Field Technician'}
           </span>
         </div>
-        <p style={{ color: '#94a3b8', fontSize: '0.875rem' }}>
+        <p style={{ color: '#4B5563', fontSize: '0.875rem' }}>
           Review assigned appliance service jobs and progress them through resolution
         </p>
       </div>
@@ -130,37 +130,37 @@ const TechnicianDashboard = () => {
         }}
       >
         <div className="metric-card">
-          <div style={{ color: '#94a3b8', fontSize: '0.75rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+          <div style={{ color: '#6B7280', fontSize: '0.75rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
             Total Assigned
           </div>
-          <div style={{ fontSize: '1.75rem', fontWeight: 700, color: '#f8fafc', marginTop: '0.25rem' }}>
+          <div style={{ fontSize: '1.75rem', fontWeight: 700, color: '#1F2937', marginTop: '0.25rem' }}>
             {requests.length}
           </div>
         </div>
 
         <div className="metric-card">
-          <div style={{ color: '#60a5fa', fontSize: '0.75rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+          <div style={{ color: '#2563EB', fontSize: '0.75rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
             Assigned (Pending Start)
           </div>
-          <div style={{ fontSize: '1.75rem', fontWeight: 700, color: '#60a5fa', marginTop: '0.25rem' }}>
+          <div style={{ fontSize: '1.75rem', fontWeight: 700, color: '#2563EB', marginTop: '0.25rem' }}>
             {stats.assigned}
           </div>
         </div>
 
         <div className="metric-card">
-          <div style={{ color: '#c084fc', fontSize: '0.75rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+          <div style={{ color: '#D97706', fontSize: '0.75rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
             In Progress
           </div>
-          <div style={{ fontSize: '1.75rem', fontWeight: 700, color: '#c084fc', marginTop: '0.25rem' }}>
+          <div style={{ fontSize: '1.75rem', fontWeight: 700, color: '#D97706', marginTop: '0.25rem' }}>
             {stats.inProgress}
           </div>
         </div>
 
         <div className="metric-card">
-          <div style={{ color: '#4ade80', fontSize: '0.75rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+          <div style={{ color: '#16A34A', fontSize: '0.75rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
             Completed Jobs
           </div>
-          <div style={{ fontSize: '1.75rem', fontWeight: 700, color: '#4ade80', marginTop: '0.25rem' }}>
+          <div style={{ fontSize: '1.75rem', fontWeight: 700, color: '#16A34A', marginTop: '0.25rem' }}>
             {stats.completed}
           </div>
         </div>
@@ -172,16 +172,16 @@ const TechnicianDashboard = () => {
           display: 'flex',
           alignItems: 'center',
           gap: '0.4rem',
-          backgroundColor: '#111726',
+          backgroundColor: '#FFFFFF',
           padding: '0.35rem 0.5rem',
           borderRadius: 'var(--radius-sm)',
-          border: '1px solid #1e293d',
+          border: '1px solid #E5E7EB',
           boxShadow: 'var(--shadow-xs)',
           marginBottom: '1.5rem',
           overflowX: 'auto',
         }}
       >
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', color: '#94a3b8', fontSize: '0.8rem', fontWeight: 600, paddingLeft: '0.4rem', marginRight: '0.25rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', color: '#4B5563', fontSize: '0.8rem', fontWeight: 600, paddingLeft: '0.4rem', marginRight: '0.25rem' }}>
           <Filter size={14} />
           <span>Status:</span>
         </div>
@@ -194,10 +194,10 @@ const TechnicianDashboard = () => {
               fontSize: '0.8rem',
               fontWeight: 600,
               borderRadius: '5px',
-              border: selectedFilter === filter ? '1px solid #3b82f6' : '1px solid transparent',
+              border: selectedFilter === filter ? '1px solid #2563EB' : '1px solid transparent',
               cursor: 'pointer',
-              backgroundColor: selectedFilter === filter ? '#2563eb' : 'transparent',
-              color: selectedFilter === filter ? '#ffffff' : '#94a3b8',
+              backgroundColor: selectedFilter === filter ? '#2563EB' : 'transparent',
+              color: selectedFilter === filter ? '#ffffff' : '#4B5563',
               transition: 'all 0.15s ease',
             }}
           >
@@ -223,7 +223,7 @@ const TechnicianDashboard = () => {
 
       {/* Content */}
       {loading ? (
-        <div style={{ textAlign: 'center', padding: '3.5rem 0', color: '#64748b' }}>
+        <div style={{ textAlign: 'center', padding: '3.5rem 0', color: '#6B7280' }}>
           <p>Loading assigned tasks...</p>
         </div>
       ) : requests.length === 0 ? (
@@ -233,7 +233,8 @@ const TechnicianDashboard = () => {
             textAlign: 'center',
             padding: '3.5rem 1.5rem',
             borderStyle: 'dashed',
-            backgroundColor: '#111726',
+            borderColor: '#D1D5DB',
+            backgroundColor: '#FFFFFF',
           }}
         >
           <div
@@ -241,8 +242,8 @@ const TechnicianDashboard = () => {
               width: '44px',
               height: '44px',
               borderRadius: '10px',
-              backgroundColor: '#182032',
-              color: '#3b82f6',
+              backgroundColor: '#EFF6FF',
+              color: '#2563EB',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -251,8 +252,8 @@ const TechnicianDashboard = () => {
           >
             <Wrench size={20} />
           </div>
-          <h3 style={{ fontSize: '1.1rem', color: '#f8fafc', marginBottom: '0.25rem' }}>No Assigned Tasks</h3>
-          <p style={{ color: '#94a3b8', fontSize: '0.85rem' }}>
+          <h3 style={{ fontSize: '1.1rem', color: '#1F2937', marginBottom: '0.25rem' }}>No Assigned Tasks</h3>
+          <p style={{ color: '#4B5563', fontSize: '0.85rem' }}>
             {selectedFilter === 'All'
               ? 'You currently have no repair requests assigned to your queue.'
               : `No assigned tasks with status '${selectedFilter}'.`}
@@ -268,8 +269,8 @@ const TechnicianDashboard = () => {
                 display: 'flex',
                 flexDirection: 'column',
                 overflow: 'hidden',
-                backgroundColor: '#111726',
-                border: '1px solid #1e293d',
+                backgroundColor: '#FFFFFF',
+                border: '1px solid #E5E7EB',
               }}
             >
               {/* Photo */}
@@ -277,10 +278,10 @@ const TechnicianDashboard = () => {
                 style={{
                   position: 'relative',
                   height: '175px',
-                  backgroundColor: '#0c121e',
+                  backgroundColor: '#F5F6F8',
                   overflow: 'hidden',
                   cursor: 'pointer',
-                  borderBottom: '1px solid #1e293d',
+                  borderBottom: '1px solid #E5E7EB',
                 }}
                 onClick={() =>
                   setModalImage({
@@ -306,17 +307,17 @@ const TechnicianDashboard = () => {
               {/* Body */}
               <div style={{ padding: '1.25rem', flex: 1, display: 'flex', flexDirection: 'column' }}>
                 <div style={{ marginBottom: '0.5rem' }}>
-                  <div style={{ fontSize: '0.72rem', color: '#60a5fa', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                  <div style={{ fontSize: '0.72rem', color: '#2563EB', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
                     {req.brand}
                   </div>
-                  <h3 style={{ fontSize: '1.1rem', color: '#f8fafc', fontWeight: 700 }}>
+                  <h3 style={{ fontSize: '1.1rem', color: '#1F2937', fontWeight: 700 }}>
                     {req.applianceType}
                   </h3>
                 </div>
 
                 <p
                   style={{
-                    color: '#94a3b8',
+                    color: '#4B5563',
                     fontSize: '0.875rem',
                     marginBottom: '1rem',
                     lineHeight: 1.5,
@@ -328,10 +329,10 @@ const TechnicianDashboard = () => {
                 {/* Customer Details Box */}
                 <div
                   style={{
-                    backgroundColor: '#0c121e',
+                    backgroundColor: '#F9FAFB',
                     padding: '0.75rem',
                     borderRadius: '8px',
-                    border: '1px solid #1e293d',
+                    border: '1px solid #E5E7EB',
                     marginBottom: '1rem',
                     display: 'flex',
                     flexDirection: 'column',
@@ -339,16 +340,16 @@ const TechnicianDashboard = () => {
                     fontSize: '0.825rem',
                   }}
                 >
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontWeight: 600, color: '#f8fafc' }}>
-                    <User size={14} color="#60a5fa" />
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontWeight: 600, color: '#1F2937' }}>
+                    <User size={14} color="#2563EB" />
                     <span>{req.customer?.name || 'Customer'}</span>
                   </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: '#94a3b8' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: '#4B5563' }}>
                     <Phone size={14} />
                     <span>{req.customer?.phone || 'No phone'}</span>
                   </div>
                   {req.customer?.address && (
-                    <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.4rem', color: '#64748b' }}>
+                    <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.4rem', color: '#6B7280' }}>
                       <MapPin size={14} style={{ marginTop: '2px', flexShrink: 0 }} />
                       <span>{req.customer?.address}</span>
                     </div>
@@ -360,7 +361,7 @@ const TechnicianDashboard = () => {
                   style={{
                     marginTop: 'auto',
                     paddingTop: '0.75rem',
-                    borderTop: '1px solid #1e293d',
+                    borderTop: '1px solid #E5E7EB',
                     display: 'flex',
                     flexDirection: 'column',
                     gap: '0.4rem',
@@ -371,7 +372,7 @@ const TechnicianDashboard = () => {
                       <button
                         onClick={() => handleQuickStatusUpdate(req._id, 'In Progress')}
                         className="btn btn-primary"
-                        style={{ flex: 1, padding: '0.45rem', fontSize: '0.825rem' }}
+                        style={{ flex: 1, padding: '0.45rem', fontSize: '0.825rem', backgroundColor: '#2563EB' }}
                         disabled={updatingId === req._id}
                       >
                         <Play size={14} />
@@ -394,7 +395,7 @@ const TechnicianDashboard = () => {
                       <button
                         onClick={() => handleQuickStatusUpdate(req._id, 'Completed')}
                         className="btn btn-success"
-                        style={{ flex: 1, padding: '0.45rem', fontSize: '0.825rem' }}
+                        style={{ flex: 1, padding: '0.45rem', fontSize: '0.825rem', backgroundColor: '#16A34A' }}
                         disabled={updatingId === req._id}
                       >
                         <Check size={14} />
@@ -417,7 +418,7 @@ const TechnicianDashboard = () => {
                       style={{
                         textAlign: 'center',
                         fontSize: '0.78rem',
-                        color: req.status === 'Completed' ? '#4ade80' : '#f87171',
+                        color: req.status === 'Completed' ? '#16A34A' : '#DC2626',
                         padding: '0.2rem 0',
                         fontWeight: 600,
                       }}

@@ -11,8 +11,8 @@ const PhotoModal = ({ imageUrl, altText, onClose }) => {
       style={{
         position: 'fixed',
         inset: 0,
-        backgroundColor: 'rgba(5, 8, 14, 0.85)',
-        backdropFilter: 'blur(6px)',
+        backgroundColor: 'rgba(31, 41, 55, 0.75)',
+        backdropFilter: 'blur(4px)',
         zIndex: 1000,
         display: 'flex',
         alignItems: 'center',
@@ -27,10 +27,10 @@ const PhotoModal = ({ imageUrl, altText, onClose }) => {
           maxWidth: '90vw',
           maxHeight: '85vh',
           width: '720px',
-          backgroundColor: '#111726',
+          backgroundColor: '#FFFFFF',
           borderRadius: 'var(--radius-md)',
           overflow: 'hidden',
-          border: '1px solid #1e293d',
+          border: '1px solid #E5E7EB',
           boxShadow: 'var(--shadow-lg)',
           display: 'flex',
           flexDirection: 'column',
@@ -42,13 +42,13 @@ const PhotoModal = ({ imageUrl, altText, onClose }) => {
             alignItems: 'center',
             justifyContent: 'space-between',
             padding: '0.75rem 1rem',
-            borderBottom: '1px solid #1e293d',
-            backgroundColor: '#111726',
+            borderBottom: '1px solid #E5E7EB',
+            backgroundColor: '#FFFFFF',
           }}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <ImageIcon size={16} color="#60a5fa" />
-            <span style={{ fontWeight: 600, fontSize: '0.875rem', color: '#f8fafc' }}>
+            <ImageIcon size={16} color="#2563EB" />
+            <span style={{ fontWeight: 600, fontSize: '0.875rem', color: '#1F2937' }}>
               {altText || 'Appliance Inspection Photo'}
             </span>
           </div>
@@ -70,7 +70,7 @@ const PhotoModal = ({ imageUrl, altText, onClose }) => {
             justifyContent: 'center',
             maxHeight: 'calc(85vh - 55px)',
             overflow: 'auto',
-            backgroundColor: '#0c121e',
+            backgroundColor: '#F5F6F8',
           }}
         >
           <SecureImage

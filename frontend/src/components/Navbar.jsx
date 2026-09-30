@@ -16,12 +16,11 @@ const Navbar = () => {
   return (
     <header
       style={{
-        backgroundColor: '#0c121e',
-        borderBottom: '1px solid #1e293d',
+        backgroundColor: '#1F2937',
+        borderBottom: '1px solid #374151',
         position: 'sticky',
         top: 0,
         zIndex: 100,
-        backdropFilter: 'blur(8px)',
       }}
     >
       <div
@@ -38,7 +37,7 @@ const Navbar = () => {
         <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', textDecoration: 'none' }}>
           <div
             style={{
-              backgroundColor: '#2563eb',
+              backgroundColor: '#2563EB',
               color: '#ffffff',
               width: '36px',
               height: '36px',
@@ -46,16 +45,16 @@ const Navbar = () => {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              boxShadow: '0 2px 8px rgba(37, 99, 235, 0.4)',
+              boxShadow: '0 1px 3px rgba(0, 0, 0, 0.2)',
             }}
           >
             <Wrench size={19} />
           </div>
           <div style={{ lineHeight: 1.2 }}>
-            <div style={{ fontSize: '1.15rem', fontWeight: 800, color: '#f8fafc', letterSpacing: '-0.02em' }}>
+            <div style={{ fontSize: '1.15rem', fontWeight: 800, color: '#FFFFFF', letterSpacing: '-0.02em' }}>
               ServiceDesk
             </div>
-            <div style={{ fontSize: '0.75rem', color: '#94a3b8', marginTop: '1px' }}>
+            <div style={{ fontSize: '0.75rem', color: '#9CA3AF', marginTop: '1px' }}>
               Repair Management
             </div>
           </div>
@@ -77,9 +76,9 @@ const Navbar = () => {
                       fontWeight: 600,
                       padding: '0.45rem 0.85rem',
                       borderRadius: '6px',
-                      color: location.pathname === '/dashboard' ? '#f8fafc' : '#94a3b8',
-                      backgroundColor: location.pathname === '/dashboard' ? '#182032' : 'transparent',
-                      border: location.pathname === '/dashboard' ? '1px solid #2a374f' : '1px solid transparent',
+                      color: location.pathname === '/dashboard' ? '#FFFFFF' : '#D1D5DB',
+                      backgroundColor: location.pathname === '/dashboard' ? '#374151' : 'transparent',
+                      border: location.pathname === '/dashboard' ? '1px solid #4B5563' : '1px solid transparent',
                       transition: 'all 0.15s ease',
                       textDecoration: 'none',
                     }}
@@ -91,7 +90,7 @@ const Navbar = () => {
                   <Link
                     to="/raise-request"
                     className="btn btn-primary"
-                    style={{ fontSize: '0.825rem', padding: '0.45rem 0.9rem', textDecoration: 'none' }}
+                    style={{ fontSize: '0.825rem', padding: '0.45rem 0.9rem', textDecoration: 'none', backgroundColor: '#2563EB' }}
                   >
                     <Plus size={16} />
                     <span>New Request</span>
@@ -110,9 +109,9 @@ const Navbar = () => {
                     fontWeight: 600,
                     padding: '0.45rem 0.85rem',
                     borderRadius: '6px',
-                    color: location.pathname === '/technician' ? '#f8fafc' : '#94a3b8',
-                    backgroundColor: location.pathname === '/technician' ? '#182032' : 'transparent',
-                    border: location.pathname === '/technician' ? '1px solid #2a374f' : '1px solid transparent',
+                    color: location.pathname === '/technician' ? '#FFFFFF' : '#D1D5DB',
+                    backgroundColor: location.pathname === '/technician' ? '#374151' : 'transparent',
+                    border: location.pathname === '/technician' ? '1px solid #4B5563' : '1px solid transparent',
                     transition: 'all 0.15s ease',
                     textDecoration: 'none',
                   }}
@@ -129,8 +128,8 @@ const Navbar = () => {
                   alignItems: 'center',
                   gap: '0.55rem',
                   padding: '0.35rem 0.75rem',
-                  backgroundColor: '#111726',
-                  border: '1px solid #1e293d',
+                  backgroundColor: '#374151',
+                  border: '1px solid #4B5563',
                   borderRadius: '8px',
                 }}
               >
@@ -139,7 +138,7 @@ const Navbar = () => {
                     width: '26px',
                     height: '26px',
                     borderRadius: '6px',
-                    backgroundColor: isTechnician ? '#7c3aed' : '#2563eb',
+                    backgroundColor: '#2563EB',
                     color: '#ffffff',
                     display: 'flex',
                     alignItems: 'center',
@@ -151,10 +150,10 @@ const Navbar = () => {
                   {user?.name ? user.name.charAt(0).toUpperCase() : 'U'}
                 </div>
                 <div style={{ textAlign: 'left', lineHeight: 1.2 }}>
-                  <div style={{ fontSize: '0.8rem', fontWeight: 600, color: '#f8fafc' }}>
+                  <div style={{ fontSize: '0.8rem', fontWeight: 600, color: '#FFFFFF' }}>
                     {user?.name}
                   </div>
-                  <div style={{ fontSize: '0.68rem', color: '#64748b', textTransform: 'capitalize' }}>
+                  <div style={{ fontSize: '0.68rem', color: '#9CA3AF', textTransform: 'capitalize' }}>
                     {user?.role} {user?.specialization ? `• ${user.specialization}` : ''}
                   </div>
                 </div>
@@ -168,9 +167,9 @@ const Navbar = () => {
                   alignItems: 'center',
                   justifyContent: 'center',
                   padding: '0.5rem 0.65rem',
-                  color: '#f87171',
-                  backgroundColor: '#111726',
-                  border: '1px solid #1e293d',
+                  color: '#F87171',
+                  backgroundColor: '#374151',
+                  border: '1px solid #4B5563',
                   borderRadius: '8px',
                   cursor: 'pointer',
                   transition: 'all 0.15s ease',
@@ -185,12 +184,12 @@ const Navbar = () => {
               <Link
                 to="/login"
                 style={{
-                  color: '#f8fafc',
+                  color: '#FFFFFF',
                   fontSize: '0.875rem',
                   fontWeight: 600,
                   padding: '0.45rem 0.85rem',
-                  backgroundColor: '#182032',
-                  border: '1px solid #2a374f',
+                  backgroundColor: '#374151',
+                  border: '1px solid #4B5563',
                   borderRadius: '6px',
                   textDecoration: 'none',
                   transition: 'all 0.15s ease',
@@ -201,14 +200,14 @@ const Navbar = () => {
               <Link
                 to="/register"
                 style={{
-                  backgroundColor: '#16a34a',
+                  backgroundColor: '#2563EB',
                   color: '#ffffff',
                   fontSize: '0.875rem',
                   fontWeight: 600,
                   padding: '0.45rem 1rem',
                   borderRadius: '6px',
                   textDecoration: 'none',
-                  boxShadow: '0 2px 8px rgba(22, 163, 74, 0.35)',
+                  boxShadow: '0 1px 2px rgba(0, 0, 0, 0.2)',
                   transition: 'all 0.15s ease',
                 }}
               >

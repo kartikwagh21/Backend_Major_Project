@@ -118,10 +118,10 @@ const CustomerDashboard = () => {
         }}
       >
         <div>
-          <h1 style={{ fontSize: '1.6rem', color: '#f8fafc', marginBottom: '0.2rem' }}>
+          <h1 style={{ fontSize: '1.6rem', color: '#1F2937', marginBottom: '0.2rem' }}>
             My Repair Requests
           </h1>
-          <p style={{ color: '#94a3b8', fontSize: '0.875rem' }}>
+          <p style={{ color: '#4B5563', fontSize: '0.875rem' }}>
             Real-time appliance service tracking and technician status updates
           </p>
         </div>
@@ -129,7 +129,7 @@ const CustomerDashboard = () => {
         <Link
           to="/raise-request"
           className="btn btn-primary"
-          style={{ padding: '0.55rem 1.15rem' }}
+          style={{ padding: '0.55rem 1.15rem', backgroundColor: '#2563EB' }}
         >
           <Plus size={16} />
           <span>New Repair Request</span>
@@ -146,37 +146,37 @@ const CustomerDashboard = () => {
         }}
       >
         <div className="metric-card">
-          <div style={{ color: '#94a3b8', fontSize: '0.75rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+          <div style={{ color: '#6B7280', fontSize: '0.75rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
             Total Requests
           </div>
-          <div style={{ fontSize: '1.75rem', fontWeight: 700, color: '#f8fafc', marginTop: '0.25rem' }}>
+          <div style={{ fontSize: '1.75rem', fontWeight: 700, color: '#1F2937', marginTop: '0.25rem' }}>
             {requests.length}
           </div>
         </div>
 
         <div className="metric-card">
-          <div style={{ color: '#60a5fa', fontSize: '0.75rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+          <div style={{ color: '#2563EB', fontSize: '0.75rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
             Assigned
           </div>
-          <div style={{ fontSize: '1.75rem', fontWeight: 700, color: '#60a5fa', marginTop: '0.25rem' }}>
+          <div style={{ fontSize: '1.75rem', fontWeight: 700, color: '#2563EB', marginTop: '0.25rem' }}>
             {stats.assigned}
           </div>
         </div>
 
         <div className="metric-card">
-          <div style={{ color: '#c084fc', fontSize: '0.75rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+          <div style={{ color: '#D97706', fontSize: '0.75rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
             In Progress
           </div>
-          <div style={{ fontSize: '1.75rem', fontWeight: 700, color: '#c084fc', marginTop: '0.25rem' }}>
+          <div style={{ fontSize: '1.75rem', fontWeight: 700, color: '#D97706', marginTop: '0.25rem' }}>
             {stats.inProgress}
           </div>
         </div>
 
         <div className="metric-card">
-          <div style={{ color: '#4ade80', fontSize: '0.75rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+          <div style={{ color: '#16A34A', fontSize: '0.75rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
             Completed
           </div>
-          <div style={{ fontSize: '1.75rem', fontWeight: 700, color: '#4ade80', marginTop: '0.25rem' }}>
+          <div style={{ fontSize: '1.75rem', fontWeight: 700, color: '#16A34A', marginTop: '0.25rem' }}>
             {stats.completed}
           </div>
         </div>
@@ -188,16 +188,16 @@ const CustomerDashboard = () => {
           display: 'flex',
           alignItems: 'center',
           gap: '0.4rem',
-          backgroundColor: '#111726',
+          backgroundColor: '#FFFFFF',
           padding: '0.35rem 0.5rem',
           borderRadius: 'var(--radius-sm)',
-          border: '1px solid #1e293d',
+          border: '1px solid #E5E7EB',
           boxShadow: 'var(--shadow-xs)',
           marginBottom: '1.5rem',
           overflowX: 'auto',
         }}
       >
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', color: '#94a3b8', fontSize: '0.8rem', fontWeight: 600, paddingLeft: '0.4rem', marginRight: '0.25rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', color: '#4B5563', fontSize: '0.8rem', fontWeight: 600, paddingLeft: '0.4rem', marginRight: '0.25rem' }}>
           <Filter size={14} />
           <span>Filter:</span>
         </div>
@@ -210,10 +210,10 @@ const CustomerDashboard = () => {
               fontSize: '0.8rem',
               fontWeight: 600,
               borderRadius: '5px',
-              border: selectedFilter === filter ? '1px solid #3b82f6' : '1px solid transparent',
+              border: selectedFilter === filter ? '1px solid #2563EB' : '1px solid transparent',
               cursor: 'pointer',
-              backgroundColor: selectedFilter === filter ? '#2563eb' : 'transparent',
-              color: selectedFilter === filter ? '#ffffff' : '#94a3b8',
+              backgroundColor: selectedFilter === filter ? '#2563EB' : 'transparent',
+              color: selectedFilter === filter ? '#ffffff' : '#4B5563',
               transition: 'all 0.15s ease',
             }}
           >
@@ -239,7 +239,7 @@ const CustomerDashboard = () => {
 
       {/* Content */}
       {loading ? (
-        <div style={{ textAlign: 'center', padding: '3.5rem 0', color: '#64748b' }}>
+        <div style={{ textAlign: 'center', padding: '3.5rem 0', color: '#6B7280' }}>
           <p>Loading your requests...</p>
         </div>
       ) : requests.length === 0 ? (
@@ -249,7 +249,8 @@ const CustomerDashboard = () => {
             textAlign: 'center',
             padding: '3.5rem 1.5rem',
             borderStyle: 'dashed',
-            backgroundColor: '#111726',
+            borderColor: '#D1D5DB',
+            backgroundColor: '#FFFFFF',
           }}
         >
           <div
@@ -257,8 +258,8 @@ const CustomerDashboard = () => {
               width: '44px',
               height: '44px',
               borderRadius: '10px',
-              backgroundColor: '#182032',
-              color: '#3b82f6',
+              backgroundColor: '#EFF6FF',
+              color: '#2563EB',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -267,13 +268,13 @@ const CustomerDashboard = () => {
           >
             <Wrench size={20} />
           </div>
-          <h3 style={{ fontSize: '1.1rem', color: '#f8fafc', marginBottom: '0.25rem' }}>No Requests Found</h3>
-          <p style={{ color: '#94a3b8', fontSize: '0.85rem', maxWidth: '380px', margin: '0 auto 1.25rem' }}>
+          <h3 style={{ fontSize: '1.1rem', color: '#1F2937', marginBottom: '0.25rem' }}>No Requests Found</h3>
+          <p style={{ color: '#4B5563', fontSize: '0.85rem', maxWidth: '380px', margin: '0 auto 1.25rem' }}>
             {selectedFilter === 'All'
               ? 'You have not submitted any repair requests yet.'
               : `No repair requests with status '${selectedFilter}'.`}
           </p>
-          <Link to="/raise-request" className="btn btn-primary">
+          <Link to="/raise-request" className="btn btn-primary" style={{ backgroundColor: '#2563EB' }}>
             <Plus size={15} />
             <span>Raise Request</span>
           </Link>
@@ -288,8 +289,8 @@ const CustomerDashboard = () => {
                 display: 'flex',
                 flexDirection: 'column',
                 overflow: 'hidden',
-                backgroundColor: '#111726',
-                border: '1px solid #1e293d',
+                backgroundColor: '#FFFFFF',
+                border: '1px solid #E5E7EB',
               }}
             >
               {/* Photo Area */}
@@ -297,10 +298,10 @@ const CustomerDashboard = () => {
                 style={{
                   position: 'relative',
                   height: '175px',
-                  backgroundColor: '#0c121e',
+                  backgroundColor: '#F5F6F8',
                   overflow: 'hidden',
                   cursor: 'pointer',
-                  borderBottom: '1px solid #1e293d',
+                  borderBottom: '1px solid #E5E7EB',
                 }}
                 onClick={() =>
                   setModalImage({
@@ -326,17 +327,17 @@ const CustomerDashboard = () => {
               {/* Body */}
               <div style={{ padding: '1.25rem', flex: 1, display: 'flex', flexDirection: 'column' }}>
                 <div style={{ marginBottom: '0.5rem' }}>
-                  <div style={{ fontSize: '0.72rem', color: '#60a5fa', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                  <div style={{ fontSize: '0.72rem', color: '#2563EB', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
                     {req.brand}
                   </div>
-                  <h3 style={{ fontSize: '1.1rem', color: '#f8fafc', fontWeight: 700 }}>
+                  <h3 style={{ fontSize: '1.1rem', color: '#1F2937', fontWeight: 700 }}>
                     {req.applianceType}
                   </h3>
                 </div>
 
                 <p
                   style={{
-                    color: '#94a3b8',
+                    color: '#4B5563',
                     fontSize: '0.875rem',
                     marginBottom: '1rem',
                     lineHeight: 1.5,
@@ -352,22 +353,22 @@ const CustomerDashboard = () => {
                 {/* Technician Box */}
                 <div
                   style={{
-                    backgroundColor: '#0c121e',
+                    backgroundColor: '#F9FAFB',
                     padding: '0.65rem 0.75rem',
                     borderRadius: '8px',
-                    border: '1px solid #1e293d',
+                    border: '1px solid #E5E7EB',
                     marginTop: 'auto',
                     marginBottom: '1rem',
                     fontSize: '0.8rem',
                   }}
                 >
-                  <div style={{ fontSize: '0.68rem', color: '#64748b', fontWeight: 700, textTransform: 'uppercase', marginBottom: '0.15rem' }}>
+                  <div style={{ fontSize: '0.68rem', color: '#6B7280', fontWeight: 700, textTransform: 'uppercase', marginBottom: '0.15rem' }}>
                     Assigned Technician
                   </div>
-                  <div style={{ fontWeight: 600, color: '#f8fafc' }}>
+                  <div style={{ fontWeight: 600, color: '#1F2937' }}>
                     {req.technician?.name || 'Service Technician'}
                   </div>
-                  <div style={{ color: '#94a3b8', fontSize: '0.75rem' }}>
+                  <div style={{ color: '#4B5563', fontSize: '0.75rem' }}>
                     {req.technician?.specialization} • {req.technician?.phone}
                   </div>
                 </div>
@@ -379,11 +380,11 @@ const CustomerDashboard = () => {
                     alignItems: 'center',
                     justifyContent: 'space-between',
                     paddingTop: '0.75rem',
-                    borderTop: '1px solid #1e293d',
+                    borderTop: '1px solid #E5E7EB',
                     gap: '0.5rem',
                   }}
                 >
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.75rem', color: '#64748b' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.75rem', color: '#6B7280' }}>
                     <Calendar size={13} />
                     <span>{new Date(req.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
                   </div>

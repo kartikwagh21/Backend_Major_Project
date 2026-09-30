@@ -49,18 +49,18 @@ const Login = () => {
         className="clean-card"
         style={{
           padding: '2.5rem 2.25rem',
-          backgroundColor: '#111726',
+          backgroundColor: '#FFFFFF',
           borderRadius: '14px',
-          border: '1px solid #1e293d',
-          boxShadow: '0 10px 30px -10px rgba(0, 0, 0, 0.5)',
+          border: '1px solid #E5E7EB',
+          boxShadow: 'var(--shadow-md)',
         }}
       >
         {/* Header */}
         <div style={{ marginBottom: '1.75rem', textAlign: 'center' }}>
-          <h1 style={{ fontSize: '1.5rem', fontWeight: 700, color: '#f8fafc', marginBottom: '0.4rem' }}>
+          <h1 style={{ fontSize: '1.5rem', fontWeight: 700, color: '#1F2937', marginBottom: '0.4rem' }}>
             Sign in to ServiceDesk
           </h1>
-          <p style={{ color: '#94a3b8', fontSize: '0.875rem' }}>
+          <p style={{ color: '#4B5563', fontSize: '0.875rem' }}>
             Choose your account role and enter credentials
           </p>
         </div>
@@ -70,8 +70,8 @@ const Login = () => {
           style={{
             display: 'grid',
             gridTemplateColumns: '1fr 1fr',
-            backgroundColor: '#0c121e',
-            border: '1px solid #1e293d',
+            backgroundColor: '#F3F4F6',
+            border: '1px solid #E5E7EB',
             padding: '4px',
             borderRadius: '8px',
             gap: '4px',
@@ -86,15 +86,15 @@ const Login = () => {
               fontSize: '0.875rem',
               fontWeight: 600,
               borderRadius: '6px',
-              border: role === 'customer' ? '1px solid #2a374f' : '1px solid transparent',
+              border: role === 'customer' ? '1px solid #D1D5DB' : '1px solid transparent',
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               gap: '0.45rem',
-              backgroundColor: role === 'customer' ? '#182032' : 'transparent',
-              color: role === 'customer' ? '#f8fafc' : '#94a3b8',
-              boxShadow: role === 'customer' ? '0 1px 3px rgba(0,0,0,0.4)' : 'none',
+              backgroundColor: role === 'customer' ? '#FFFFFF' : 'transparent',
+              color: role === 'customer' ? '#1F2937' : '#4B5563',
+              boxShadow: role === 'customer' ? '0 1px 2px rgba(0,0,0,0.05)' : 'none',
               transition: 'all 0.15s ease',
             }}
           >
@@ -109,15 +109,15 @@ const Login = () => {
               fontSize: '0.875rem',
               fontWeight: 600,
               borderRadius: '6px',
-              border: role === 'technician' ? '1px solid #2a374f' : '1px solid transparent',
+              border: role === 'technician' ? '1px solid #D1D5DB' : '1px solid transparent',
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               gap: '0.45rem',
-              backgroundColor: role === 'technician' ? '#182032' : 'transparent',
-              color: role === 'technician' ? '#f8fafc' : '#94a3b8',
-              boxShadow: role === 'technician' ? '0 1px 3px rgba(0,0,0,0.4)' : 'none',
+              backgroundColor: role === 'technician' ? '#FFFFFF' : 'transparent',
+              color: role === 'technician' ? '#1F2937' : '#4B5563',
+              boxShadow: role === 'technician' ? '0 1px 2px rgba(0,0,0,0.05)' : 'none',
               transition: 'all 0.15s ease',
             }}
           >
@@ -136,7 +136,7 @@ const Login = () => {
 
         <form onSubmit={handleSubmit}>
           <div className="form-group" style={{ marginBottom: '1.25rem' }}>
-            <label className="form-label" style={{ color: '#cbd5e1', fontSize: '0.875rem', fontWeight: 500 }}>
+            <label className="form-label" style={{ color: '#374151', fontSize: '0.875rem', fontWeight: 500 }}>
               Email Address
             </label>
             <input
@@ -147,9 +147,9 @@ const Login = () => {
               onChange={(e) => setEmail(e.target.value)}
               required
               style={{
-                backgroundColor: '#0c121e',
-                border: '1px solid #1e293d',
-                color: '#f8fafc',
+                backgroundColor: '#FFFFFF',
+                border: '1px solid #D1D5DB',
+                color: '#1F2937',
                 padding: '0.7rem 0.85rem',
                 borderRadius: '8px',
               }}
@@ -157,7 +157,7 @@ const Login = () => {
           </div>
 
           <div className="form-group" style={{ marginBottom: '1.5rem' }}>
-            <label className="form-label" style={{ color: '#cbd5e1', fontSize: '0.875rem', fontWeight: 500 }}>
+            <label className="form-label" style={{ color: '#374151', fontSize: '0.875rem', fontWeight: 500 }}>
               Password
             </label>
             <input
@@ -168,9 +168,9 @@ const Login = () => {
               onChange={(e) => setPassword(e.target.value)}
               required
               style={{
-                backgroundColor: '#0c121e',
-                border: '1px solid #1e293d',
-                color: '#f8fafc',
+                backgroundColor: '#FFFFFF',
+                border: '1px solid #D1D5DB',
+                color: '#1F2937',
                 padding: '0.7rem 0.85rem',
                 borderRadius: '8px',
               }}
@@ -181,7 +181,7 @@ const Login = () => {
             type="submit"
             style={{
               width: '100%',
-              backgroundColor: '#16a34a',
+              backgroundColor: '#2563EB',
               color: '#ffffff',
               border: 'none',
               padding: '0.75rem',
@@ -192,11 +192,11 @@ const Login = () => {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              boxShadow: '0 2px 8px rgba(22, 163, 74, 0.35)',
+              boxShadow: '0 1px 2px rgba(37, 99, 235, 0.2)',
               transition: 'all 0.15s ease',
             }}
-            onMouseOver={(e) => (e.currentTarget.style.backgroundColor = '#15803d')}
-            onMouseOut={(e) => (e.currentTarget.style.backgroundColor = '#16a34a')}
+            onMouseOver={(e) => (e.currentTarget.style.backgroundColor = '#1D4ED8')}
+            onMouseOut={(e) => (e.currentTarget.style.backgroundColor = '#2563EB')}
             disabled={loading}
           >
             {loading ? 'Signing in...' : `Sign in as ${role === 'customer' ? 'Customer' : 'Technician'}`}
@@ -208,12 +208,12 @@ const Login = () => {
           style={{
             marginTop: '1.75rem',
             padding: '1rem',
-            backgroundColor: '#0c121e',
-            border: '1px solid #1e293d',
+            backgroundColor: '#F9FAFB',
+            border: '1px solid #E5E7EB',
             borderRadius: '10px',
           }}
         >
-          <div style={{ color: '#94a3b8', fontSize: '0.8rem', fontWeight: 500, marginBottom: '0.6rem' }}>
+          <div style={{ color: '#4B5563', fontSize: '0.8rem', fontWeight: 500, marginBottom: '0.6rem' }}>
             Instant Demo Credentials:
           </div>
           <div style={{ display: 'flex', gap: '0.65rem' }}>
@@ -223,17 +223,17 @@ const Login = () => {
               style={{
                 flex: 1,
                 padding: '0.5rem 0.75rem',
-                backgroundColor: '#182032',
-                color: '#f1f5f9',
-                border: '1px solid #2a374f',
+                backgroundColor: '#FFFFFF',
+                color: '#1F2937',
+                border: '1px solid #D1D5DB',
                 borderRadius: '6px',
                 fontSize: '0.8rem',
                 fontWeight: 600,
                 cursor: 'pointer',
                 transition: 'all 0.15s ease',
               }}
-              onMouseOver={(e) => (e.currentTarget.style.backgroundColor = '#202b42')}
-              onMouseOut={(e) => (e.currentTarget.style.backgroundColor = '#182032')}
+              onMouseOver={(e) => (e.currentTarget.style.backgroundColor = '#F3F4F6')}
+              onMouseOut={(e) => (e.currentTarget.style.backgroundColor = '#FFFFFF')}
             >
               Fill Demo Customer
             </button>
@@ -243,17 +243,17 @@ const Login = () => {
               style={{
                 flex: 1,
                 padding: '0.5rem 0.75rem',
-                backgroundColor: '#182032',
-                color: '#f1f5f9',
-                border: '1px solid #2a374f',
+                backgroundColor: '#FFFFFF',
+                color: '#1F2937',
+                border: '1px solid #D1D5DB',
                 borderRadius: '6px',
                 fontSize: '0.8rem',
                 fontWeight: 600,
                 cursor: 'pointer',
                 transition: 'all 0.15s ease',
               }}
-              onMouseOver={(e) => (e.currentTarget.style.backgroundColor = '#202b42')}
-              onMouseOut={(e) => (e.currentTarget.style.backgroundColor = '#182032')}
+              onMouseOver={(e) => (e.currentTarget.style.backgroundColor = '#F3F4F6')}
+              onMouseOut={(e) => (e.currentTarget.style.backgroundColor = '#FFFFFF')}
             >
               Fill Demo Technician
             </button>
@@ -261,9 +261,9 @@ const Login = () => {
         </div>
 
         {/* Link to Register */}
-        <div style={{ textAlign: 'center', marginTop: '1.75rem', fontSize: '0.875rem', color: '#94a3b8' }}>
+        <div style={{ textAlign: 'center', marginTop: '1.75rem', fontSize: '0.875rem', color: '#4B5563' }}>
           Don't have an account?{' '}
-          <Link to="/register" style={{ color: '#38bdf8', fontWeight: 600, textDecoration: 'none' }}>
+          <Link to="/register" style={{ color: '#2563EB', fontWeight: 600, textDecoration: 'none' }}>
             Create an account
           </Link>
         </div>
