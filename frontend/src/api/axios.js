@@ -34,10 +34,12 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response && error.response.status === 401) {
-      // Token expired or invalid
+      // Stale or invalid token from prior database seed
       const currentPath = window.location.pathname;
+      localStorage.removeItem('repair_service_token');
+      localStorage.removeItem('repair_service_user');
       if (currentPath !== '/login' && currentPath !== '/register') {
-        // Only clear if actually logged out
+        window.location.href = '/login';
       }
     }
     return Promise.reject(error);
