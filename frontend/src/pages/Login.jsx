@@ -10,18 +10,8 @@ const Login = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const { login, isAuthenticated, user } = useAuth();
+  const { login } = useAuth();
   const navigate = useNavigate();
-
-  React.useEffect(() => {
-    if (isAuthenticated && user) {
-      if (user.role === 'technician') {
-        navigate('/technician');
-      } else {
-        navigate('/dashboard');
-      }
-    }
-  }, [isAuthenticated, user, navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
