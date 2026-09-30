@@ -42,8 +42,8 @@ function App() {
           <Navbar />
           <main className="main-content">
             <Routes>
-              {/* Root Route always opens Login page */}
-              <Route path="/" element={<Login />} />
+              {/* Root Route directs to RootRedirect */}
+              <Route path="/" element={<RootRedirect />} />
 
               {/* Public Auth Routes */}
               <Route path="/login" element={<Login />} />
@@ -88,7 +88,7 @@ function App() {
               />
 
               {/* Catch all */}
-              <Route path="*" element={<Navigate to="/" replace />} />
+              <Route path="*" element={<RootRedirect />} />
             </Routes>
           </main>
         </div>

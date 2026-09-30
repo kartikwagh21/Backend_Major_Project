@@ -18,6 +18,12 @@ const Navbar = () => {
     navigate('/login');
   };
 
+  const homeLink = !isAuthenticated
+    ? '/login'
+    : isTechnician
+    ? '/technician'
+    : '/dashboard';
+
   return (
     <header
       style={{
@@ -39,7 +45,7 @@ const Navbar = () => {
         }}
       >
         {/* Brand */}
-        <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', textDecoration: 'none' }}>
+        <Link to={homeLink} style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', textDecoration: 'none' }}>
           <div
             style={{
               backgroundColor: '#2563EB',

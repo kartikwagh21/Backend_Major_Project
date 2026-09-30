@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, Navigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { User, Wrench, AlertCircle } from 'lucide-react';
 
@@ -27,8 +27,13 @@ const Register = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const { register } = useAuth();
+  const { user, isAuthenticated, loading: authLoading, register } = useAuth();
   const navigate = useNavigate();
+
+  // If already authenticated, redirect to appropriate dashboard
+  if (!authLoading && isAuthenticated && user) {
+    return <Navigate to={user.role === 'technician' ? '/technician' : '/dashboard'} replace />;
+  }
 
   const handleChange = (e) => {
     setFormData({
