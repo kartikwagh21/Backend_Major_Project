@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import api from '../api/axios';
 import { useAuth } from '../context/AuthContext';
 import StatusBadge from '../components/StatusBadge';
@@ -16,7 +16,8 @@ import {
 const STATUS_FILTERS = ['All', 'Assigned', 'In Progress', 'Completed', 'Cancelled'];
 
 const CustomerDashboard = () => {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -33,6 +34,11 @@ const CustomerDashboard = () => {
         setRequests(res.data.data);
       }
     } catch (err) {
+      if (err.response?.status === 401) {
+        logout();
+        navigate('/login');
+        return;
+      }
       setError(err.response?.data?.message || 'Failed to fetch repair requests.');
     } finally {
       setLoading(false);
