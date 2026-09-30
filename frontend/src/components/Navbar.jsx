@@ -8,6 +8,11 @@ const Navbar = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
+  // Do not render navbar on auth pages (login / register)
+  if (location.pathname === '/login' || location.pathname === '/register') {
+    return null;
+  }
+
   const handleLogout = () => {
     logout();
     navigate('/login');
@@ -45,7 +50,7 @@ const Navbar = () => {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              boxShadow: '0 1px 3px rgba(0, 0, 0, 0.2)',
+              boxShadow: '0 1px 2px rgba(0, 0, 0, 0.2)',
             }}
           >
             <Wrench size={19} />
