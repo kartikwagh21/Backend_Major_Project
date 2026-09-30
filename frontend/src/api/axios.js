@@ -1,9 +1,22 @@
 import axios from 'axios';
 
-// Base URL configured from environment variable with smart fallback and normalization
-const rawBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
+// Smart resolution for API Base URL
+const getBaseUrl = () => {
+  const envUrl = import.meta.env.VITE_API_BASE_URL;
+  const isBrowser = typeof window !== 'undefined';
+  const isProduction = isBrowser && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1';
 
-// Normalize URL: remove trailing slashes and ensure /api is present
+  // If in production browser and env variable is missing or points to localhost, use live Render backend
+  if (isProduction) {
+    if (!envUrl || envUrl.includes('localhost') || envUrl.includes('127.0.0.1')) {
+      return 'https://backend-major-project-tlhb.onrender.com/api';
+    }
+  }
+
+  return envUrl || 'http://localhost:5001/api';
+};
+
+const rawBaseUrl = getBaseUrl();
 let normalizedBaseUrl = rawBaseUrl.replace(/\/+$/, '');
 if (!normalizedBaseUrl.endsWith('/api')) {
   normalizedBaseUrl = `${normalizedBaseUrl}/api`;
@@ -24,9 +37,7 @@ api.interceptors.request.use(
     }
     return config;
   },
-  (error) => {
-    return Promise.reject(error);
-  }
+  (error) => Promise.reject(error)
 );
 
 // Response interceptor to handle unauthenticated 401s gracefully
@@ -34,12 +45,13 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response && error.response.status === 401) {
-      // Stale or invalid token from prior database seed
-      const currentPath = window.location.pathname;
       localStorage.removeItem('repair_service_token');
       localStorage.removeItem('repair_service_user');
-      if (currentPath !== '/login' && currentPath !== '/register') {
-        window.location.href = '/login';
+      if (typeof window !== 'undefined') {
+        const currentPath = window.location.pathname;
+        if (currentPath !== '/login' && currentPath !== '/register') {
+          window.location.href = '/login';
+        }
       }
     }
     return Promise.reject(error);
