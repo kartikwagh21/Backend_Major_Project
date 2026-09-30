@@ -1,10 +1,16 @@
 import axios from 'axios';
 
-// Base URL configured from environment variable with fallback
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5001/api';
+// Base URL configured from environment variable with smart fallback and normalization
+const rawBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
+
+// Normalize URL: remove trailing slashes and ensure /api is present
+let normalizedBaseUrl = rawBaseUrl.replace(/\/+$/, '');
+if (!normalizedBaseUrl.endsWith('/api')) {
+  normalizedBaseUrl = `${normalizedBaseUrl}/api`;
+}
 
 const api = axios.create({
-  baseURL: API_BASE_URL,
+  baseURL: normalizedBaseUrl,
   headers: {
     'Content-Type': 'application/json',
   },
@@ -34,7 +40,6 @@ api.interceptors.response.use(
       if (currentPath !== '/login' && currentPath !== '/register') {
         localStorage.removeItem('repair_service_token');
         localStorage.removeItem('repair_service_user');
-        // window.location.href = '/login';
       }
     }
     return Promise.reject(error);

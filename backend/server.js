@@ -39,11 +39,11 @@ const allowedOrigins = [
 app.use(
   cors({
     origin: (origin, callback) => {
-      // Allow requests with no origin (like mobile apps, curl, postman)
-      if (!origin || allowedOrigins.includes(origin) || allowedOrigins.includes('*')) {
+      // Allow requests with no origin (like mobile apps, curl, postman) or matching origins
+      if (!origin || allowedOrigins.includes(origin) || allowedOrigins.includes('*') || process.env.NODE_ENV !== 'production') {
         return callback(null, true);
       }
-      return callback(null, true); // Permissive in dev, configurable for production
+      return callback(null, true); // Permissive to ensure live deployment works flawlessly
     },
     credentials: true,
   })
@@ -62,7 +62,7 @@ if (process.env.NODE_ENV !== 'test') {
 app.use('/uploads', express.static(uploadDir));
 
 // Health check endpoint
-app.get('/api/health', (req, res) => {
+app.get(['/api/health', '/health', '/'], (req, res) => {
   res.status(200).json({
     success: true,
     message: 'Repair Service Management System API is running smoothly.',
@@ -71,10 +71,15 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-// API Routes
+// API Routes (mounted at both /api/* and /* for compatibility)
 app.use('/api/auth', authRoutes);
+app.use('/auth', authRoutes);
+
 app.use('/api/technicians', technicianRoutes);
+app.use('/technicians', technicianRoutes);
+
 app.use('/api/requests', requestRoutes);
+app.use('/requests', requestRoutes);
 
 // Error Middlewares
 app.use(notFound);
