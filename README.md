@@ -6,6 +6,26 @@
 
 ---
 
+## 🌐 Live Production Links & Credentials
+
+- **🚀 Live Frontend Application (Vercel)**:  
+  👉 **[https://backend-major-project-dusky.vercel.app/login](https://backend-major-project-dusky.vercel.app/login)**
+- **⚡ Live Backend API (Render)**:  
+  👉 **[https://backend-major-project-tlhb.onrender.com/api/health](https://backend-major-project-tlhb.onrender.com/api/health)**
+- **📦 GitHub Repository**:  
+  👉 **[https://github.com/kartikwagh21/Backend_Major_Project](https://github.com/kartikwagh21/Backend_Major_Project)**
+- **📑 Postman Collection**: Located in `postman/Repair_Service_API.postman_collection.json`
+
+### 🔑 Demo Credentials:
+| Role | Email | Password | Location / Specialization |
+| :--- | :--- | :--- | :--- |
+| **Customer** | `kartik.wagh@gmail.com` | `password123` | Vashi, Navi Mumbai |
+| **Technician** | `rajesh.sharma@fixitpro.in` | `password123` | Air Conditioner (AC) |
+
+*(Use the **Fill Demo Customer** or **Fill Demo Technician** buttons on the login screen for instant 1-click access).*
+
+---
+
 ## 1. Project Overview
 
 The **Repair Service Management System** (**FixIt Pro**) is a full-stack, enterprise-grade web application built to streamline appliance repair requests between customers and certified technicians. 
