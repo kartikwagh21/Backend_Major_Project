@@ -4,6 +4,7 @@ import api from '../api/axios';
 import { useAuth } from '../context/AuthContext';
 import StatusBadge from '../components/StatusBadge';
 import PhotoModal from '../components/PhotoModal';
+import SecureImage from '../components/SecureImage';
 import {
   Wrench,
   User,
@@ -283,25 +284,18 @@ const TechnicianDashboard = () => {
                 }}
                 onClick={() =>
                   setModalImage({
-                    url: getImageUrl(req.photoPath),
+                    url: req.photoPath || `/requests/${req._id}/photo`,
                     alt: `${req.brand} ${req.applianceType}`,
                   })
                 }
               >
-                <img
-                  src={getImageUrl(req.photoPath)}
+                <SecureImage
+                  src={req.photoPath || `/requests/${req._id}/photo`}
                   alt={`${req.brand} ${req.applianceType}`}
                   style={{
                     width: '100%',
                     height: '100%',
                     objectFit: 'cover',
-                  }}
-                  onError={(e) => {
-                    const fallbackPath = `/${req.photoPath?.startsWith('/') ? req.photoPath.slice(1) : req.photoPath}`;
-                    if (!e.currentTarget.dataset.retried) {
-                      e.currentTarget.dataset.retried = 'true';
-                      e.currentTarget.src = fallbackPath;
-                    }
                   }}
                 />
                 <div style={{ position: 'absolute', top: '10px', right: '10px' }}>

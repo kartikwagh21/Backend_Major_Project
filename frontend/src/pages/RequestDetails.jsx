@@ -5,6 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import StatusBadge from '../components/StatusBadge';
 import StatusHistoryTimeline from '../components/StatusHistoryTimeline';
 import PhotoModal from '../components/PhotoModal';
+import SecureImage from '../components/SecureImage';
 import {
   ArrowLeft,
   Calendar,
@@ -17,6 +18,7 @@ import {
   Mail,
   MapPin,
   Wrench,
+  XCircle,
 } from 'lucide-react';
 
 const VALID_NEXT_STATUS_MAP = {
@@ -201,7 +203,7 @@ const RequestDetails = () => {
                 type="button"
                 onClick={() =>
                   setModalImage({
-                    url: getImageUrl(request.photoPath),
+                    url: request.photoPath || `/requests/${request._id}/photo`,
                     alt: `${request.brand} ${request.applianceType}`,
                   })
                 }
@@ -228,22 +230,15 @@ const RequestDetails = () => {
               }}
               onClick={() =>
                 setModalImage({
-                  url: getImageUrl(request.photoPath),
+                  url: request.photoPath || `/requests/${request._id}/photo`,
                   alt: `${request.brand} ${request.applianceType}`,
                 })
               }
             >
-              <img
-                src={getImageUrl(request.photoPath)}
+              <SecureImage
+                src={request.photoPath || `/requests/${request._id}/photo`}
                 alt={`${request.brand} ${request.applianceType}`}
                 style={{ width: '100%', maxHeight: '280px', objectFit: 'contain' }}
-                onError={(e) => {
-                  const fallbackPath = `/${request.photoPath?.startsWith('/') ? request.photoPath.slice(1) : request.photoPath}`;
-                  if (!e.currentTarget.dataset.retried) {
-                    e.currentTarget.dataset.retried = 'true';
-                    e.currentTarget.src = fallbackPath;
-                  }
-                }}
               />
             </div>
           </div>
@@ -301,6 +296,78 @@ const RequestDetails = () => {
 
         {/* Right Column */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+          {/* Customer Cancellation Panel */}
+          {isCustomer && request.status === 'Assigned' && (
+            <div className="clean-card" style={{ padding: '1.25rem', borderLeft: '4px solid #ef4444', backgroundColor: '#111726' }}>
+              <h3 style={{ fontSize: '0.95rem', color: '#f8fafc', marginBottom: '0.5rem' }}>
+                Cancel Repair Request
+              </h3>
+              <p style={{ fontSize: '0.825rem', color: '#94a3b8', marginBottom: '1rem' }}>
+                You may cancel this request while it is in Assigned status.
+              </p>
+
+              {updateSuccess && (
+                <div className="alert alert-success">
+                  <CheckCircle2 size={16} />
+                  <span>{updateSuccess}</span>
+                </div>
+              )}
+
+              {updateError && (
+                <div className="alert alert-error">
+                  <AlertCircle size={16} />
+                  <span>{updateError}</span>
+                </div>
+              )}
+
+              <form
+                onSubmit={async (e) => {
+                  e.preventDefault();
+                  if (!window.confirm('Are you sure you want to cancel this request?')) return;
+                  setUpdating(true);
+                  setUpdateError('');
+                  setUpdateSuccess('');
+                  try {
+                    const res = await api.patch(`/requests/${id}/status`, {
+                      status: 'Cancelled',
+                      note: statusNote.trim() || 'Cancelled by customer.',
+                    });
+                    if (res.data.success) {
+                      setUpdateSuccess('Request has been cancelled.');
+                      setRequest(res.data.data);
+                      setStatusNote('');
+                    }
+                  } catch (err) {
+                    setUpdateError(err.response?.data?.message || 'Failed to cancel request.');
+                  } finally {
+                    setUpdating(false);
+                  }
+                }}
+              >
+                <div className="form-group">
+                  <label className="form-label">Cancellation Reason (Optional)</label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    placeholder="e.g. Issue resolved on its own"
+                    value={statusNote}
+                    onChange={(e) => setStatusNote(e.target.value)}
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  className="btn btn-danger"
+                  style={{ width: '100%', padding: '0.6rem' }}
+                  disabled={updating}
+                >
+                  <XCircle size={15} />
+                  <span>{updating ? 'Cancelling...' : 'Confirm Cancellation'}</span>
+                </button>
+              </form>
+            </div>
+          )}
+
           {/* Technician Action Panel */}
           {isAssignedTech && (
             <div className="clean-card" style={{ padding: '1.25rem', borderLeft: '4px solid #2563eb', backgroundColor: '#111726' }}>

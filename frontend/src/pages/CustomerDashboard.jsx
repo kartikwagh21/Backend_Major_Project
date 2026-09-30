@@ -4,13 +4,16 @@ import api from '../api/axios';
 import { useAuth } from '../context/AuthContext';
 import StatusBadge from '../components/StatusBadge';
 import PhotoModal from '../components/PhotoModal';
+import SecureImage from '../components/SecureImage';
 import {
   Plus,
   Wrench,
   Calendar,
   AlertCircle,
+  CheckCircle2,
   ChevronRight,
   Filter,
+  XCircle,
 } from 'lucide-react';
 
 const STATUS_FILTERS = ['All', 'Assigned', 'In Progress', 'Completed', 'Cancelled'];
@@ -21,6 +24,8 @@ const CustomerDashboard = () => {
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [actionSuccess, setActionSuccess] = useState('');
+  const [cancellingId, setCancellingId] = useState(null);
   const [selectedFilter, setSelectedFilter] = useState('All');
   const [modalImage, setModalImage] = useState(null);
 
@@ -42,6 +47,33 @@ const CustomerDashboard = () => {
       setError(err.response?.data?.message || 'Failed to fetch repair requests.');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleCancelRequest = async (requestId) => {
+    if (!window.confirm('Are you sure you want to cancel this repair request?')) {
+      return;
+    }
+
+    setCancellingId(requestId);
+    setError('');
+    setActionSuccess('');
+
+    try {
+      const res = await api.patch(`/requests/${requestId}/status`, {
+        status: 'Cancelled',
+        note: 'Cancelled by customer.',
+      });
+
+      if (res.data.success) {
+        setActionSuccess('Repair request cancelled successfully.');
+        fetchRequests(selectedFilter);
+        setTimeout(() => setActionSuccess(''), 4000);
+      }
+    } catch (err) {
+      setError(err.response?.data?.message || 'Failed to cancel repair request.');
+    } finally {
+      setCancellingId(null);
     }
   };
 
@@ -190,7 +222,14 @@ const CustomerDashboard = () => {
         ))}
       </div>
 
-      {/* Error Banner */}
+      {/* Success and Error Banners */}
+      {actionSuccess && (
+        <div className="alert alert-success">
+          <CheckCircle2 size={16} />
+          <span>{actionSuccess}</span>
+        </div>
+      )}
+
       {error && (
         <div className="alert alert-error">
           <AlertCircle size={16} />
@@ -265,25 +304,18 @@ const CustomerDashboard = () => {
                 }}
                 onClick={() =>
                   setModalImage({
-                    url: getImageUrl(req.photoPath),
+                    url: req.photoPath || `/requests/${req._id}/photo`,
                     alt: `${req.brand} ${req.applianceType}`,
                   })
                 }
               >
-                <img
-                  src={getImageUrl(req.photoPath)}
+                <SecureImage
+                  src={req.photoPath || `/requests/${req._id}/photo`}
                   alt={`${req.brand} ${req.applianceType}`}
                   style={{
                     width: '100%',
                     height: '100%',
                     objectFit: 'cover',
-                  }}
-                  onError={(e) => {
-                    const fallbackPath = `/${req.photoPath?.startsWith('/') ? req.photoPath.slice(1) : req.photoPath}`;
-                    if (!e.currentTarget.dataset.retried) {
-                      e.currentTarget.dataset.retried = 'true';
-                      e.currentTarget.src = fallbackPath;
-                    }
                   }}
                 />
                 <div style={{ position: 'absolute', top: '10px', right: '10px' }}>
@@ -340,7 +372,7 @@ const CustomerDashboard = () => {
                   </div>
                 </div>
 
-                {/* Footer */}
+                {/* Footer with Details and Customer Cancel */}
                 <div
                   style={{
                     display: 'flex',
@@ -348,6 +380,7 @@ const CustomerDashboard = () => {
                     justifyContent: 'space-between',
                     paddingTop: '0.75rem',
                     borderTop: '1px solid #1e293d',
+                    gap: '0.5rem',
                   }}
                 >
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.75rem', color: '#64748b' }}>
@@ -355,14 +388,30 @@ const CustomerDashboard = () => {
                     <span>{new Date(req.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
                   </div>
 
-                  <Link
-                    to={`/requests/${req._id}`}
-                    className="btn btn-secondary"
-                    style={{ padding: '0.35rem 0.75rem', fontSize: '0.8rem' }}
-                  >
-                    <span>Details</span>
-                    <ChevronRight size={13} />
-                  </Link>
+                  <div style={{ display: 'flex', gap: '0.4rem', alignItems: 'center' }}>
+                    {req.status === 'Assigned' && (
+                      <button
+                        type="button"
+                        onClick={() => handleCancelRequest(req._id)}
+                        disabled={cancellingId === req._id}
+                        className="btn btn-danger"
+                        style={{ padding: '0.35rem 0.65rem', fontSize: '0.75rem' }}
+                        title="Cancel this request"
+                      >
+                        <XCircle size={13} />
+                        <span>Cancel</span>
+                      </button>
+                    )}
+
+                    <Link
+                      to={`/requests/${req._id}`}
+                      className="btn btn-secondary"
+                      style={{ padding: '0.35rem 0.75rem', fontSize: '0.8rem' }}
+                    >
+                      <span>Details</span>
+                      <ChevronRight size={13} />
+                    </Link>
+                  </div>
                 </div>
               </div>
             </div>
