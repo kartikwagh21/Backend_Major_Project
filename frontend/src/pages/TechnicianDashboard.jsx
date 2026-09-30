@@ -81,19 +81,7 @@ const TechnicianDashboard = () => {
     completed: requests.filter((r) => r.status === 'Completed').length,
   };
 
-  const getImageUrl = (photoPath) => {
-    if (!photoPath) return '/uploads/voltas_1.5ton_split_ac.svg';
-    if (photoPath.startsWith('http://') || photoPath.startsWith('https://')) return photoPath;
-    const cleanPath = photoPath.startsWith('/') ? photoPath.slice(1) : photoPath;
 
-    let base = import.meta.env.VITE_IMAGE_BASE_URL || import.meta.env.VITE_API_BASE_URL;
-    if (base) {
-      base = base.replace(/\/api\/?$/, '');
-    } else {
-      base = window.location.hostname === 'localhost' ? 'http://localhost:5001' : 'https://backend-major-project-tlhb.onrender.com';
-    }
-    return `${base.replace(/\/+$/, '')}/${cleanPath}`;
-  };
 
   return (
     <div>
