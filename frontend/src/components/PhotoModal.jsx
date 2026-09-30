@@ -1,5 +1,6 @@
 import React from 'react';
-import { X, ExternalLink } from 'lucide-react';
+import { X, Image as ImageIcon } from 'lucide-react';
+import SecureImage from './SecureImage';
 
 const PhotoModal = ({ imageUrl, altText, onClose }) => {
   if (!imageUrl) return null;
@@ -25,6 +26,7 @@ const PhotoModal = ({ imageUrl, altText, onClose }) => {
           position: 'relative',
           maxWidth: '90vw',
           maxHeight: '85vh',
+          width: '720px',
           backgroundColor: '#111726',
           borderRadius: 'var(--radius-md)',
           overflow: 'hidden',
@@ -44,29 +46,20 @@ const PhotoModal = ({ imageUrl, altText, onClose }) => {
             backgroundColor: '#111726',
           }}
         >
-          <span style={{ fontWeight: 600, fontSize: '0.875rem', color: '#f8fafc' }}>
-            {altText || 'Appliance Inspection Photo'}
-          </span>
-          <div style={{ display: 'flex', gap: '0.5rem' }}>
-            <a
-              href={imageUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="btn btn-secondary"
-              style={{ padding: '0.3rem 0.6rem', fontSize: '0.75rem' }}
-            >
-              <ExternalLink size={13} />
-              <span>Full Size</span>
-            </a>
-            <button
-              onClick={onClose}
-              className="btn btn-secondary"
-              style={{ padding: '0.3rem 0.5rem' }}
-              title="Close"
-            >
-              <X size={15} />
-            </button>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <ImageIcon size={16} color="#60a5fa" />
+            <span style={{ fontWeight: 600, fontSize: '0.875rem', color: '#f8fafc' }}>
+              {altText || 'Appliance Inspection Photo'}
+            </span>
           </div>
+          <button
+            onClick={onClose}
+            className="btn btn-secondary"
+            style={{ padding: '0.3rem 0.5rem' }}
+            title="Close"
+          >
+            <X size={15} />
+          </button>
         </div>
 
         <div
@@ -80,7 +73,7 @@ const PhotoModal = ({ imageUrl, altText, onClose }) => {
             backgroundColor: '#0c121e',
           }}
         >
-          <img
+          <SecureImage
             src={imageUrl}
             alt={altText || 'Appliance'}
             style={{

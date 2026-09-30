@@ -1,8 +1,7 @@
 const RepairRequest = require('../models/RepairRequest');
 const Technician = require('../models/Technician');
-const { deleteUploadedFile } = require('../middleware/uploadMiddleware');
 
-// Valid status transitions map
+// Valid status transitions map for technicians
 const VALID_STATUS_TRANSITIONS = {
   Pending: ['Assigned', 'Cancelled'],
   Assigned: ['In Progress', 'Cancelled'],
@@ -11,37 +10,40 @@ const VALID_STATUS_TRANSITIONS = {
   Cancelled: [],
 };
 
-// @desc    Create a new repair request with photo upload
+// @desc    Create a new repair request with photo upload stored in MongoDB
 // @route   POST /api/requests
 // @access  Private (Customer only)
 const createRequest = async (req, res, next) => {
   try {
     const { technician, applianceType, brand, issueDescription } = req.body;
 
+    // Photo file is required
+    if (!req.file || !req.file.buffer) {
+      return res.status(400).json({
+        success: false,
+        message: 'Appliance photo is required.',
+      });
+    }
+
     // Check if selected technician exists
     const techExists = await Technician.findById(technician);
     if (!techExists) {
-      if (req.file) {
-        deleteUploadedFile(req.file.path);
-      }
       return res.status(400).json({
         success: false,
         message: 'Selected technician does not exist in the system.',
       });
     }
 
-    // Relative photo path for URL serving (if uploaded, e.g. uploads/appliance-123.jpg; or default placeholder)
-    const photoPath = req.file
-      ? `uploads/${req.file.filename}`
-      : req.body.photoPath || 'uploads/default_appliance.svg';
-
-    const repairRequest = await RepairRequest.create({
+    const repairRequest = new RepairRequest({
       customer: req.user.id,
       technician,
       applianceType,
       brand: brand || 'Generic / Unspecified',
       issueDescription,
-      photoPath,
+      photo: {
+        data: req.file.buffer,
+        contentType: req.file.mimetype || 'image/jpeg',
+      },
       status: 'Assigned',
       statusHistory: [
         {
@@ -54,6 +56,9 @@ const createRequest = async (req, res, next) => {
       ],
     });
 
+    repairRequest.photoPath = `/api/requests/${repairRequest._id}/photo`;
+    await repairRequest.save();
+
     const populatedRequest = await RepairRequest.findById(repairRequest._id)
       .populate('customer', 'name email phone address')
       .populate('technician', 'name email phone specialization');
@@ -64,9 +69,6 @@ const createRequest = async (req, res, next) => {
       data: populatedRequest,
     });
   } catch (error) {
-    if (req.file) {
-      deleteUploadedFile(req.file.path);
-    }
     next(error);
   }
 };
@@ -148,9 +150,56 @@ const getRequestById = async (req, res, next) => {
   }
 };
 
-// @desc    Update repair request status (Technician workflow)
+// @desc    Get appliance photo stream securely from MongoDB
+// @route   GET /api/requests/:id/photo
+// @access  Private (Owner customer or Assigned Technician)
+const getRequestPhoto = async (req, res, next) => {
+  try {
+    const request = await RepairRequest.findById(req.params.id).select('+photo.data customer technician');
+
+    if (!request) {
+      return res.status(404).json({
+        success: false,
+        message: 'Repair request not found.',
+      });
+    }
+
+    const userId = req.user.id;
+    const isOwnerCustomer =
+      req.user.role === 'customer' &&
+      request.customer &&
+      request.customer.toString() === userId;
+
+    const isAssignedTechnician =
+      req.user.role === 'technician' &&
+      request.technician &&
+      request.technician.toString() === userId;
+
+    if (!isOwnerCustomer && !isAssignedTechnician) {
+      return res.status(403).json({
+        success: false,
+        message: 'Forbidden: You do not have permission to access this photo.',
+      });
+    }
+
+    if (!request.photo || !request.photo.data) {
+      return res.status(404).json({
+        success: false,
+        message: 'Appliance photo not found for this request.',
+      });
+    }
+
+    res.set('Content-Type', request.photo.contentType || 'image/jpeg');
+    res.set('Cache-Control', 'private, max-age=86400');
+    return res.send(request.photo.data);
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Update repair request status (Technician workflow & Customer cancellation)
 // @route   PATCH /api/requests/:id/status
-// @access  Private (Assigned Technician only)
+// @access  Private (Assigned Technician or Owner Customer)
 const updateRequestStatus = async (req, res, next) => {
   try {
     const { status: newStatus, note } = req.body;
@@ -163,31 +212,65 @@ const updateRequestStatus = async (req, res, next) => {
       });
     }
 
-    // Verify technician assignment
-    if (req.user.role === 'technician' && request.technician.toString() !== req.user.id) {
+    const currentStatus = request.status;
+
+    // 1. Customer cancellation logic
+    if (req.user.role === 'customer') {
+      if (request.customer.toString() !== req.user.id) {
+        return res.status(403).json({
+          success: false,
+          message: 'Forbidden: You can only cancel your own repair requests.',
+        });
+      }
+
+      if (newStatus !== 'Cancelled') {
+        return res.status(400).json({
+          success: false,
+          message: 'Customers are only permitted to cancel requests.',
+        });
+      }
+
+      if (currentStatus !== 'Assigned') {
+        return res.status(400).json({
+          success: false,
+          message: `Customers can only cancel requests while status is 'Assigned'. Current status is '${currentStatus}'.`,
+        });
+      }
+    } else if (req.user.role === 'technician') {
+      // 2. Technician workflow logic
+      if (request.technician.toString() !== req.user.id) {
+        return res.status(403).json({
+          success: false,
+          message: 'Forbidden: You are only allowed to update status for repair requests assigned to you.',
+        });
+      }
+
+      const allowedTransitions = VALID_STATUS_TRANSITIONS[currentStatus] || [];
+      if (!allowedTransitions.includes(newStatus) && currentStatus !== newStatus) {
+        return res.status(400).json({
+          success: false,
+          message: `Invalid status transition from '${currentStatus}' to '${newStatus}'. Allowed transitions: [${allowedTransitions.join(', ')}]`,
+        });
+      }
+    } else {
       return res.status(403).json({
         success: false,
-        message: 'Forbidden: You are only allowed to update status for repair requests assigned to you.',
-      });
-    }
-
-    const currentStatus = request.status;
-    const allowedTransitions = VALID_STATUS_TRANSITIONS[currentStatus] || [];
-
-    if (!allowedTransitions.includes(newStatus) && currentStatus !== newStatus) {
-      return res.status(400).json({
-        success: false,
-        message: `Invalid status transition from '${currentStatus}' to '${newStatus}'. Allowed transitions: [${allowedTransitions.join(', ')}]`,
+        message: 'Forbidden: Unauthorized role.',
       });
     }
 
     // Append to status history audit trail
+    const roleCapitalized = req.user.role.charAt(0).toUpperCase() + req.user.role.slice(1);
     const historyEntry = {
       status: newStatus,
       changedAt: new Date(),
-      changedBy: `${req.user.name} (${req.user.role})`,
+      changedBy: `${req.user.name} (${roleCapitalized})`,
       role: req.user.role,
-      note: note || `Status updated from ${currentStatus} to ${newStatus}.`,
+      note:
+        note ||
+        (newStatus === 'Cancelled' && req.user.role === 'customer'
+          ? 'Repair request cancelled by customer.'
+          : `Status updated from ${currentStatus} to ${newStatus}.`),
     };
 
     request.status = newStatus;
@@ -214,5 +297,6 @@ module.exports = {
   getMyRequests,
   getAssignedRequests,
   getRequestById,
+  getRequestPhoto,
   updateRequestStatus,
 };

@@ -22,12 +22,6 @@ if (process.env.NODE_ENV !== 'test') {
   connectDB();
 }
 
-// Ensure uploads folder exists
-const uploadDir = path.resolve(process.env.UPLOAD_PATH || 'uploads');
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir, { recursive: true });
-}
-
 // CORS Configuration
 const allowedOrigins = [
   'http://localhost:5173',
@@ -57,9 +51,6 @@ app.use(express.urlencoded({ extended: true }));
 if (process.env.NODE_ENV !== 'test') {
   app.use(morgan('dev'));
 }
-
-// Expose uploaded images statically
-app.use('/uploads', express.static(uploadDir));
 
 // Health check endpoint
 app.get(['/api/health', '/health', '/'], (req, res) => {
@@ -93,7 +84,7 @@ if (process.env.NODE_ENV !== 'test') {
     console.log(`\n======================================================`);
     console.log(`🚀 Repair Service API Server running on port ${PORT}`);
     console.log(`🌐 Base URL: http://localhost:${PORT}/api`);
-    console.log(`📁 Uploads Static: http://localhost:${PORT}/uploads`);
+    console.log(`🔒 Image Storage: MongoDB Atlas Binary Stream`);
     console.log(`======================================================\n`);
   });
 

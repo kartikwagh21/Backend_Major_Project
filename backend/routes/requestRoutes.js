@@ -5,13 +5,13 @@ const {
   getMyRequests,
   getAssignedRequests,
   getRequestById,
+  getRequestPhoto,
   updateRequestStatus,
 } = require('../controllers/requestController');
 const { protect } = require('../middleware/authMiddleware');
 const { authorizeRoles } = require('../middleware/roleMiddleware');
 const {
   checkRequestAccess,
-  checkTechnicianAssignment,
 } = require('../middleware/ownershipMiddleware');
 const { upload } = require('../middleware/uploadMiddleware');
 const {
@@ -34,7 +34,7 @@ router.get(
   getAssignedRequests
 );
 
-// 3. POST /api/requests - Customer raises repair request with appliance photo
+// 3. POST /api/requests - Customer raises repair request with appliance photo in MongoDB
 router.post(
   '/',
   protect,
@@ -45,18 +45,27 @@ router.post(
   createRequest
 );
 
-// 4. PATCH /api/requests/:id/status - Assigned technician only updates status
+// 4. GET /api/requests/:id/photo - Stream appliance photo securely from MongoDB
+router.get(
+  '/:id/photo',
+  protect,
+  idParamValidationRules,
+  handleValidationErrors,
+  checkRequestAccess,
+  getRequestPhoto
+);
+
+// 5. PATCH /api/requests/:id/status - Assigned technician status update or Owner Customer cancellation
 router.patch(
   '/:id/status',
   protect,
-  authorizeRoles('technician'),
+  authorizeRoles('customer', 'technician'),
   updateStatusValidationRules,
   handleValidationErrors,
-  checkTechnicianAssignment,
   updateRequestStatus
 );
 
-// 5. GET /api/requests/:id - Request details (Owner customer or assigned technician only)
+// 6. GET /api/requests/:id - Request details (Owner customer or assigned technician only)
 router.get(
   '/:id',
   protect,

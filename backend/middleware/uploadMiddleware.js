@@ -1,31 +1,10 @@
 const multer = require('multer');
 const path = require('path');
-const fs = require('fs');
 
-// Ensure upload directory exists
-const getUploadDir = () => {
-  const uploadDir = path.resolve(process.env.UPLOAD_PATH || 'uploads');
-  if (!fs.existsSync(uploadDir)) {
-    fs.mkdirSync(uploadDir, { recursive: true });
-  }
-  return uploadDir;
-};
+// Memory storage for ephemeral-disk environments (e.g. Render)
+const storage = multer.memoryStorage();
 
-// Storage configuration
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    const dir = getUploadDir();
-    cb(null, dir);
-  },
-  filename: (req, file, cb) => {
-    const timestamp = Date.now();
-    const random = Math.round(Math.random() * 1e9);
-    const ext = path.extname(file.originalname).toLowerCase() || '.png';
-    cb(null, `appliance-${timestamp}-${random}${ext}`);
-  },
-});
-
-// File filter (accepts all standard image formats including PNG, JPEG, WebP, SVG, GIF)
+// File filter (accepts all standard image formats including PNG, JPEG, WebP, SVG, GIF, AVIF)
 const fileFilter = (req, file, cb) => {
   const allowedMimeTypes = [
     'image/png',
@@ -37,12 +16,12 @@ const fileFilter = (req, file, cb) => {
     'image/avif',
   ];
   const allowedExtensions = ['.png', '.jpg', '.jpeg', '.webp', '.svg', '.gif', '.avif'];
-  const ext = path.extname(file.originalname).toLowerCase();
+  const ext = path.extname(file.originalname || '').toLowerCase();
 
   if (
     allowedMimeTypes.includes(file.mimetype) ||
     allowedExtensions.includes(ext) ||
-    file.mimetype.startsWith('image/')
+    (file.mimetype && file.mimetype.startsWith('image/'))
   ) {
     cb(null, true);
   } else {
@@ -63,21 +42,8 @@ const upload = multer({
   },
 });
 
-// Helper to remove an uploaded file if validation or process fails
-const deleteUploadedFile = (filePath) => {
-  if (!filePath) return;
-  const fullPath = path.isAbsolute(filePath)
-    ? filePath
-    : path.resolve(filePath);
-
-  if (fs.existsSync(fullPath)) {
-    fs.unlink(fullPath, (err) => {
-      if (err) {
-        console.error(`[Upload Cleanup Error]: Failed to delete ${fullPath}:`, err.message);
-      }
-    });
-  }
-};
+// No-op cleanup helper kept for backwards compatibility
+const deleteUploadedFile = () => {};
 
 module.exports = {
   upload,

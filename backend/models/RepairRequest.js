@@ -58,7 +58,16 @@ const repairRequestSchema = new mongoose.Schema(
     },
     photoPath: {
       type: String,
-      required: [true, 'Appliance photo path is required'],
+    },
+    photo: {
+      data: {
+        type: Buffer,
+        select: false,
+      },
+      contentType: {
+        type: String,
+        default: 'image/jpeg',
+      },
     },
     status: {
       type: String,

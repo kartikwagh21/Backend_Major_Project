@@ -5,26 +5,19 @@ const Customer = require('../models/Customer');
 const Technician = require('../models/Technician');
 const RepairRequest = require('../models/RepairRequest');
 
-// Ensure upload directory exists
-const uploadDir = path.resolve(process.env.UPLOAD_PATH || 'uploads');
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir, { recursive: true });
-}
-
-// Copy exact SVG inspection files from sample_appliance_images
+// Helper to load SVG photo buffer from sample_appliance_images directory or generate fallback buffer
 const sampleImagesDir = path.resolve(__dirname, '../../sample_appliance_images');
 
-const ensureImageExists = (filename, icon, brandHeader, title, model, color) => {
-  const targetPath = path.join(uploadDir, filename);
-
-  // If file exists in sample_appliance_images directory, copy it directly
+const getImageBuffer = (filename, icon, brandHeader, title, model, color) => {
   const sourcePath = path.join(sampleImagesDir, filename);
   if (fs.existsSync(sourcePath)) {
-    fs.copyFileSync(sourcePath, targetPath);
-    return `uploads/${filename}`;
+    return {
+      data: fs.readFileSync(sourcePath),
+      contentType: 'image/svg+xml',
+    };
   }
 
-  // Fallback generation if source folder not present in container
+  // Fallback generation if source file not present
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="800" height="520" viewBox="0 0 800 520">
     <defs>
       <linearGradient id="grad_${filename.replace(/[^a-zA-Z0-9]/g, '_')}" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -49,23 +42,25 @@ const ensureImageExists = (filename, icon, brandHeader, title, model, color) => 
     <text x="222" y="438" fill="#cbd5e1" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="600">Verified Inspection Photo • Ready for Technician Assignment</text>
   </svg>`;
 
-  fs.writeFileSync(targetPath, svg);
-  return `uploads/${filename}`;
+  return {
+    data: Buffer.from(svg, 'utf-8'),
+    contentType: 'image/svg+xml',
+  };
 };
 
 const seedRealisticData = async () => {
   try {
-    console.log('🔄 Seeding database with exact sample_appliance_images files...');
+    console.log('🔄 Seeding database with photos stored in MongoDB Atlas...');
 
-    const voltasAcPhoto = ensureImageExists('voltas_1.5ton_split_ac.svg', '❄️', 'VOLTAS INDIA', 'Voltas 1.5 Ton Inverter Split AC', 'Model: 185V Vectra • R32 Refrigerant • Copper Condenser', '#3b82f6');
-    const daikinAcPhoto = ensureImageExists('daikin_2ton_inverter_ac.svg', '❄️', 'DAIKIN JAPAN', 'Daikin 2 Ton 5-Star Inverter AC', 'Model: FTKM71TV • Triple Display • PM 2.5 Filter', '#0284c7');
-    const boschWmPhoto = ensureImageExists('bosch_serie6_washing_machine.svg', '🧺', 'BOSCH SERIE 6', 'Bosch 7kg Front Load Washing Machine', 'Model: WAJ24266IN • EcoSilence Drive • Anti-Vibration', '#10b981');
-    const samsungFridgePhoto = ensureImageExists('samsung_345L_frost_free_fridge.svg', '🧊', 'SAMSUNG ELECTRONICS', 'Samsung 345L Frost Free Refrigerator', 'Model: RT37T4513S8 • Convertible 5in1 • Digital Inverter', '#06b6d4');
-    const ifbMicroPhoto = ensureImageExists('ifb_30L_convection_microwave.svg', '🍲', 'IFB APPLIANCES', 'IFB 30L Convection Microwave Oven', 'Model: 30BRC2 • Rotisserie & Multi-Stage Cooking', '#f59e0b');
-    const kentRoPhoto = ensureImageExists('kent_grand_plus_ro_purifier.svg', '💧', 'KENT RO SYSTEMS', 'Kent Grand Plus RO+UV+UF Purifier', 'Model: Kent 11099 • TDS Controller & In-tank UV Disinfection', '#2563eb');
-    const panasonicAcPhoto = ensureImageExists('panasonic_1ton_smart_ac.svg', '❄️', 'PANASONIC', 'Panasonic 1 Ton Smart Split AC', 'Model: CS-XU12YKYF • Miraie AI Enabled • Nanoe-X', '#6366f1');
-    const whirlpoolFridgePhoto = ensureImageExists('whirlpool_300L_protton_fridge.svg', '🧊', 'WHIRLPOOL INDIA', 'Whirlpool 300L Triple Door Refrigerator', 'Model: FP 343D PROTTON • 6th Sense ActiveFresh', '#0ea5e9');
-    const sonyTvPhoto = ensureImageExists('sony_bravia_55inch_4k_tv.svg', '📺', 'SONY BRAVIA', 'Sony Bravia 55-inch 4K Ultra HD TV', 'Model: KD-55X74K • 4K HDR Processor X1 • Google TV', '#8b5cf6');
+    const voltasAcPhoto = getImageBuffer('voltas_1.5ton_split_ac.svg', '❄️', 'VOLTAS INDIA', 'Voltas 1.5 Ton Inverter Split AC', 'Model: 185V Vectra • R32 Refrigerant • Copper Condenser', '#3b82f6');
+    const daikinAcPhoto = getImageBuffer('daikin_2ton_inverter_ac.svg', '❄️', 'DAIKIN JAPAN', 'Daikin 2 Ton 5-Star Inverter AC', 'Model: FTKM71TV • Triple Display • PM 2.5 Filter', '#0284c7');
+    const boschWmPhoto = getImageBuffer('bosch_serie6_washing_machine.svg', '🧺', 'BOSCH SERIE 6', 'Bosch 7kg Front Load Washing Machine', 'Model: WAJ24266IN • EcoSilence Drive • Anti-Vibration', '#10b981');
+    const samsungFridgePhoto = getImageBuffer('samsung_345L_frost_free_fridge.svg', '🧊', 'SAMSUNG ELECTRONICS', 'Samsung 345L Frost Free Refrigerator', 'Model: RT37T4513S8 • Convertible 5in1 • Digital Inverter', '#06b6d4');
+    const ifbMicroPhoto = getImageBuffer('ifb_30L_convection_microwave.svg', '🍲', 'IFB APPLIANCES', 'IFB 30L Convection Microwave Oven', 'Model: 30BRC2 • Rotisserie & Multi-Stage Cooking', '#f59e0b');
+    const kentRoPhoto = getImageBuffer('kent_grand_plus_ro_purifier.svg', '💧', 'KENT RO SYSTEMS', 'Kent Grand Plus RO+UV+UF Purifier', 'Model: Kent 11099 • TDS Controller & In-tank UV Disinfection', '#2563eb');
+    const panasonicAcPhoto = getImageBuffer('panasonic_1ton_smart_ac.svg', '❄️', 'PANASONIC', 'Panasonic 1 Ton Smart Split AC', 'Model: CS-XU12YKYF • Nanoe-X', '#6366f1');
+    const whirlpoolFridgePhoto = getImageBuffer('whirlpool_300L_protton_fridge.svg', '🧊', 'WHIRLPOOL INDIA', 'Whirlpool 300L Triple Door Refrigerator', 'Model: FP 343D PROTTON', '#0ea5e9');
+    const sonyTvPhoto = getImageBuffer('sony_bravia_55inch_4k_tv.svg', '📺', 'SONY BRAVIA', 'Sony Bravia 55-inch 4K Ultra HD TV', 'Model: KD-55X74K', '#8b5cf6');
 
     // 1. Clear existing seed users to prevent duplicates
     await Customer.deleteMany({ email: { $in: [
@@ -164,14 +159,17 @@ const seedRealisticData = async () => {
     // 4. Create Requests using the exact sample_appliance_images files
     await RepairRequest.deleteMany({ customer: { $in: [custKartik._id, custPriya._id, custRohan._id, custAnanya._id, custVikas._id] } });
 
-    await RepairRequest.create([
+    const requestsToSeed = [
       {
         customer: custKartik._id,
         technician: techRajesh._id,
         applianceType: 'Air Conditioner (AC)',
         brand: 'Voltas',
         issueDescription: 'Indoor unit cooling is minimal and error code E4 is flashing on LED display.',
-        photoPath: voltasAcPhoto,
+        photo: {
+          data: voltasAcPhoto.data,
+          contentType: voltasAcPhoto.contentType,
+        },
         status: 'Assigned',
         statusHistory: [
           { status: 'Assigned', changedAt: new Date(Date.now() - 3600000 * 5), changedBy: `${custKartik.name} (Customer)`, role: 'customer', note: 'Repair request raised and assigned to technician Rajesh Sharma.' },
@@ -183,7 +181,10 @@ const seedRealisticData = async () => {
         applianceType: 'Washing Machine',
         brand: 'Bosch',
         issueDescription: 'Front load washing machine door lock mechanism is jammed with error code E13.',
-        photoPath: boschWmPhoto,
+        photo: {
+          data: boschWmPhoto.data,
+          contentType: boschWmPhoto.contentType,
+        },
         status: 'Completed',
         statusHistory: [
           { status: 'Assigned', changedAt: new Date(Date.now() - 3600000 * 48), changedBy: `${custKartik.name} (Customer)`, role: 'customer', note: 'Repair request raised.' },
@@ -197,7 +198,10 @@ const seedRealisticData = async () => {
         applianceType: 'Air Conditioner (AC)',
         brand: 'Daikin',
         issueDescription: 'AC outdoor unit makes loud vibrations and trips MCB breaker after 15 minutes of continuous running.',
-        photoPath: daikinAcPhoto,
+        photo: {
+          data: daikinAcPhoto.data,
+          contentType: daikinAcPhoto.contentType,
+        },
         status: 'In Progress',
         statusHistory: [
           { status: 'Assigned', changedAt: new Date(Date.now() - 3600000 * 24), changedBy: `${custKartik.name} (Customer)`, role: 'customer', note: 'Repair request raised.' },
@@ -210,7 +214,10 @@ const seedRealisticData = async () => {
         applianceType: 'Refrigerator / Fridge',
         brand: 'Samsung',
         issueDescription: 'Water leaking continuously from the bottom defrost drain tray onto the kitchen floor.',
-        photoPath: samsungFridgePhoto,
+        photo: {
+          data: samsungFridgePhoto.data,
+          contentType: samsungFridgePhoto.contentType,
+        },
         status: 'Assigned',
         statusHistory: [
           { status: 'Assigned', changedAt: new Date(Date.now() - 3600000 * 6), changedBy: `${custKartik.name} (Customer)`, role: 'customer', note: 'Inspection request raised.' },
@@ -222,7 +229,10 @@ const seedRealisticData = async () => {
         applianceType: 'Microwave Oven',
         brand: 'IFB',
         issueDescription: 'Turntable rotates normally but microwave emits humming sound and fails to heat any food items.',
-        photoPath: ifbMicroPhoto,
+        photo: {
+          data: ifbMicroPhoto.data,
+          contentType: ifbMicroPhoto.contentType,
+        },
         status: 'Assigned',
         statusHistory: [
           { status: 'Assigned', changedAt: new Date(Date.now() - 3600000 * 8), changedBy: `${custKartik.name} (Customer)`, role: 'customer', note: 'Repair request created.' },
@@ -234,7 +244,10 @@ const seedRealisticData = async () => {
         applianceType: 'Water Purifier / RO',
         brand: 'Kent',
         issueDescription: 'Purifier motor beeps continuously with red filter change indicator light blinking.',
-        photoPath: kentRoPhoto,
+        photo: {
+          data: kentRoPhoto.data,
+          contentType: kentRoPhoto.contentType,
+        },
         status: 'Completed',
         statusHistory: [
           { status: 'Assigned', changedAt: new Date(Date.now() - 3600000 * 72), changedBy: `${custKartik.name} (Customer)`, role: 'customer', note: 'Service request raised.' },
@@ -242,9 +255,15 @@ const seedRealisticData = async () => {
           { status: 'Completed', changedAt: new Date(Date.now() - 3600000 * 20), changedBy: `${techSanjay.name} (Technician)`, role: 'technician', note: 'RO membrane replaced, TDS calibrated to 85 ppm.' },
         ],
       },
-    ]);
+    ];
 
-    console.log('✅ All requests successfully linked with exact sample_appliance_images files!');
+    for (const reqData of requestsToSeed) {
+      const doc = new RepairRequest(reqData);
+      doc.photoPath = `/api/requests/${doc._id}/photo`;
+      await doc.save();
+    }
+
+    console.log('✅ All requests successfully linked with MongoDB photo buffers and API URLs!');
   } catch (error) {
     console.error('Error seeding data:', error.message);
   }

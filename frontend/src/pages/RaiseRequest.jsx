@@ -134,6 +134,11 @@ const RaiseRequest = () => {
       return;
     }
 
+    if (!photoFile) {
+      setError('Please upload an appliance inspection photo.');
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -152,10 +157,7 @@ const RaiseRequest = () => {
           : formData.brand
       );
       data.append('issueDescription', formData.issueDescription.trim());
-      
-      if (photoFile) {
-        data.append('photo', photoFile);
-      }
+      data.append('photo', photoFile);
 
       const token = localStorage.getItem('repair_service_token');
       const res = await api.post('/requests', data, {
@@ -433,7 +435,7 @@ const RaiseRequest = () => {
           {/* Photo Upload Section */}
           <div className="form-group" style={{ marginTop: '1.25rem', marginBottom: '1.75rem' }}>
             <label className="form-label" style={{ color: '#cbd5e1', fontSize: '0.875rem', fontWeight: 500 }}>
-              Appliance Photo (Optional)
+              Appliance Photo (Required)
             </label>
             <input
               type="file"
