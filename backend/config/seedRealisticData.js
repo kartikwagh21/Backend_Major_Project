@@ -5,64 +5,54 @@ const Customer = require('../models/Customer');
 const Technician = require('../models/Technician');
 const RepairRequest = require('../models/RepairRequest');
 
-// Helper to load SVG photo buffer from sample_appliance_images directory or generate fallback buffer
 const sampleImagesDir = path.resolve(__dirname, '../../sample_appliance_images');
 
-const getImageBuffer = (filename, icon, brandHeader, title, model, color) => {
+// Helper to load PNG photo buffer from sample_appliance_images directory
+const getImageBuffer = (filename) => {
   const sourcePath = path.join(sampleImagesDir, filename);
   if (fs.existsSync(sourcePath)) {
     return {
       data: fs.readFileSync(sourcePath),
-      contentType: 'image/svg+xml',
+      contentType: 'image/png',
     };
   }
 
-  // Fallback generation if source file not present
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="800" height="520" viewBox="0 0 800 520">
-    <defs>
-      <linearGradient id="grad_${filename.replace(/[^a-zA-Z0-9]/g, '_')}" x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" stop-color="#111726"/>
-        <stop offset="100%" stop-color="#090d16"/>
-      </linearGradient>
-    </defs>
-    <rect width="100%" height="100%" fill="#070a10"/>
-    <rect x="24" y="24" width="752" height="472" rx="16" fill="url(#grad_${filename.replace(/[^a-zA-Z0-9]/g, '_')})" stroke="#1e293d" stroke-width="2"/>
-    <rect x="24" y="24" width="752" height="56" rx="16" fill="#0c121e"/>
-    <rect x="44" y="42" width="12" height="12" rx="3" fill="${color}"/>
-    <text x="66" y="52" fill="#f8fafc" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14" font-weight="700">ServiceDesk Appliance Diagnostic System • Mumbai Service Hub</text>
-    <line x1="24" y1="80" x2="776" y2="80" stroke="#1e293d" stroke-width="1"/>
-    <circle cx="400" cy="200" r="70" fill="${color}" opacity="0.15"/>
-    <rect x="350" y="150" width="100" height="100" rx="14" fill="#182032" stroke="${color}" stroke-width="3.5"/>
-    <text x="400" y="215" text-anchor="middle" font-size="46">${icon}</text>
-    <text x="400" y="300" text-anchor="middle" fill="${color}" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14" font-weight="800" letter-spacing="2">${brandHeader}</text>
-    <text x="400" y="340" text-anchor="middle" fill="#f8fafc" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="24" font-weight="bold">${title}</text>
-    <text x="400" y="375" text-anchor="middle" fill="#94a3b8" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="15">${model}</text>
-    <rect x="180" y="415" width="440" height="36" rx="8" fill="#0c121e" stroke="#1e293d" stroke-width="1"/>
-    <circle cx="205" cy="433" r="6" fill="#22c55e"/>
-    <text x="222" y="438" fill="#cbd5e1" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="600">Verified Inspection Photo • Ready for Technician Assignment</text>
-  </svg>`;
+  // 1x1 transparent PNG fallback buffer
+  const fallbackPng = Buffer.from(
+    'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==',
+    'base64'
+  );
 
   return {
-    data: Buffer.from(svg, 'utf-8'),
-    contentType: 'image/svg+xml',
+    data: fallbackPng,
+    contentType: 'image/png',
   };
 };
 
-const seedRealisticData = async () => {
+const seedRealisticData = async (force = false) => {
   try {
-    console.log('🔄 Seeding database with photos stored in MongoDB Atlas...');
+    // If not forced and data already exists, do not overwrite
+    if (!force) {
+      const existingCount = await Customer.countDocuments();
+      if (existingCount > 0) {
+        console.log(`ℹ️ Existing data found (${existingCount} customers). Seeding skipped.`);
+        return;
+      }
+    }
 
-    const voltasAcPhoto = getImageBuffer('voltas_1.5ton_split_ac.svg', '❄️', 'VOLTAS INDIA', 'Voltas 1.5 Ton Inverter Split AC', 'Model: 185V Vectra • R32 Refrigerant • Copper Condenser', '#3b82f6');
-    const daikinAcPhoto = getImageBuffer('daikin_2ton_inverter_ac.svg', '❄️', 'DAIKIN JAPAN', 'Daikin 2 Ton 5-Star Inverter AC', 'Model: FTKM71TV • Triple Display • PM 2.5 Filter', '#0284c7');
-    const boschWmPhoto = getImageBuffer('bosch_serie6_washing_machine.svg', '🧺', 'BOSCH SERIE 6', 'Bosch 7kg Front Load Washing Machine', 'Model: WAJ24266IN • EcoSilence Drive • Anti-Vibration', '#10b981');
-    const samsungFridgePhoto = getImageBuffer('samsung_345L_frost_free_fridge.svg', '🧊', 'SAMSUNG ELECTRONICS', 'Samsung 345L Frost Free Refrigerator', 'Model: RT37T4513S8 • Convertible 5in1 • Digital Inverter', '#06b6d4');
-    const ifbMicroPhoto = getImageBuffer('ifb_30L_convection_microwave.svg', '🍲', 'IFB APPLIANCES', 'IFB 30L Convection Microwave Oven', 'Model: 30BRC2 • Rotisserie & Multi-Stage Cooking', '#f59e0b');
-    const kentRoPhoto = getImageBuffer('kent_grand_plus_ro_purifier.svg', '💧', 'KENT RO SYSTEMS', 'Kent Grand Plus RO+UV+UF Purifier', 'Model: Kent 11099 • TDS Controller & In-tank UV Disinfection', '#2563eb');
-    const panasonicAcPhoto = getImageBuffer('panasonic_1ton_smart_ac.svg', '❄️', 'PANASONIC', 'Panasonic 1 Ton Smart Split AC', 'Model: CS-XU12YKYF • Nanoe-X', '#6366f1');
-    const whirlpoolFridgePhoto = getImageBuffer('whirlpool_300L_protton_fridge.svg', '🧊', 'WHIRLPOOL INDIA', 'Whirlpool 300L Triple Door Refrigerator', 'Model: FP 343D PROTTON', '#0ea5e9');
-    const sonyTvPhoto = getImageBuffer('sony_bravia_55inch_4k_tv.svg', '📺', 'SONY BRAVIA', 'Sony Bravia 55-inch 4K Ultra HD TV', 'Model: KD-55X74K', '#8b5cf6');
+    console.log('🔄 Seeding database with realistic data and PNG photos in MongoDB Atlas...');
 
-    // 1. Clear existing seed users to prevent duplicates
+    const voltasAcPhoto = getImageBuffer('voltas_1.5ton_split_ac.png');
+    const daikinAcPhoto = getImageBuffer('daikin_2ton_inverter_ac.png');
+    const panasonicAcPhoto = getImageBuffer('panasonic_1ton_smart_ac.png');
+    const boschWmPhoto = getImageBuffer('bosch_serie6_washing_machine.png');
+    const samsungFridgePhoto = getImageBuffer('samsung_345L_frost_free_fridge.png');
+    const whirlpoolFridgePhoto = getImageBuffer('whirlpool_300L_protton_fridge.png');
+    const ifbMicroPhoto = getImageBuffer('ifb_30L_convection_microwave.png');
+    const kentRoPhoto = getImageBuffer('kent_grand_plus_ro_purifier.png');
+    const sonyTvPhoto = getImageBuffer('sony_bravia_55inch_4k_tv.png');
+
+    // 1. Clear existing seed users when force seeded
     await Customer.deleteMany({ email: { $in: [
       'kartik.wagh@gmail.com',
       'priya.nair@gmail.com',
@@ -85,7 +75,7 @@ const seedRealisticData = async () => {
       password: 'password123',
       phone: '+91 98201 44521',
       specialization: 'Air Conditioner (AC)',
-      isActive: true,
+      role: 'technician',
     });
 
     const techAmit = await Technician.create({
@@ -94,7 +84,7 @@ const seedRealisticData = async () => {
       password: 'password123',
       phone: '+91 98334 11209',
       specialization: 'Refrigerator & Freezer',
-      isActive: true,
+      role: 'technician',
     });
 
     const techVikram = await Technician.create({
@@ -103,7 +93,7 @@ const seedRealisticData = async () => {
       password: 'password123',
       phone: '+91 98192 88471',
       specialization: 'Washing Machine & Dryer',
-      isActive: true,
+      role: 'technician',
     });
 
     const techSanjay = await Technician.create({
@@ -112,7 +102,7 @@ const seedRealisticData = async () => {
       password: 'password123',
       phone: '+91 98210 66320',
       specialization: 'General Home Appliances',
-      isActive: true,
+      role: 'technician',
     });
 
     // 3. Create Customers
@@ -122,6 +112,7 @@ const seedRealisticData = async () => {
       password: 'password123',
       phone: '+91 98200 12345',
       address: 'Flat 402, Sea Breeze Apts, Sector 17, Palm Beach Road, Vashi, Navi Mumbai 400703',
+      role: 'customer',
     });
 
     const custPriya = await Customer.create({
@@ -130,6 +121,7 @@ const seedRealisticData = async () => {
       password: 'password123',
       phone: '+91 98190 23456',
       address: 'B-1204, Lodha Eternis, Mahakali Caves Road, Andheri East, Mumbai 400093',
+      role: 'customer',
     });
 
     const custRohan = await Customer.create({
@@ -138,6 +130,7 @@ const seedRealisticData = async () => {
       password: 'password123',
       phone: '+91 98205 34567',
       address: '702, Hiranandani Estate, Ghodbunder Road, Thane West 400607',
+      role: 'customer',
     });
 
     const custAnanya = await Customer.create({
@@ -146,6 +139,7 @@ const seedRealisticData = async () => {
       password: 'password123',
       phone: '+91 98330 45678',
       address: 'Flat 301, Silver Sands, Shivaji Park, Dadar West, Mumbai 400028',
+      role: 'customer',
     });
 
     const custVikas = await Customer.create({
@@ -154,9 +148,10 @@ const seedRealisticData = async () => {
       password: 'password123',
       phone: '+91 98211 56789',
       address: 'A-503, Raheja Tipco Heights, Rani Sati Marg, Malad East, Mumbai 400097',
+      role: 'customer',
     });
 
-    // 4. Create Requests using the exact sample_appliance_images files
+    // 4. Create Requests using the sample_appliance_images PNG files
     await RepairRequest.deleteMany({ customer: { $in: [custKartik._id, custPriya._id, custRohan._id, custAnanya._id, custVikas._id] } });
 
     const requestsToSeed = [
@@ -255,6 +250,51 @@ const seedRealisticData = async () => {
           { status: 'Completed', changedAt: new Date(Date.now() - 3600000 * 20), changedBy: `${techSanjay.name} (Technician)`, role: 'technician', note: 'RO membrane replaced, TDS calibrated to 85 ppm.' },
         ],
       },
+      {
+        customer: custPriya._id,
+        technician: techRajesh._id,
+        applianceType: 'Air Conditioner (AC)',
+        brand: 'Panasonic',
+        issueDescription: 'Smart inverter AC remote connectivity is unresponsive.',
+        photo: {
+          data: panasonicAcPhoto.data,
+          contentType: panasonicAcPhoto.contentType,
+        },
+        status: 'Assigned',
+        statusHistory: [
+          { status: 'Assigned', changedAt: new Date(Date.now() - 3600000 * 12), changedBy: `${custPriya.name} (Customer)`, role: 'customer', note: 'Service request booked.' },
+        ],
+      },
+      {
+        customer: custRohan._id,
+        technician: techAmit._id,
+        applianceType: 'Refrigerator / Fridge',
+        brand: 'Whirlpool',
+        issueDescription: 'Triple door bottom drawer temperature sensor warning alarm is beeping.',
+        photo: {
+          data: whirlpoolFridgePhoto.data,
+          contentType: whirlpoolFridgePhoto.contentType,
+        },
+        status: 'Assigned',
+        statusHistory: [
+          { status: 'Assigned', changedAt: new Date(Date.now() - 3600000 * 15), changedBy: `${custRohan.name} (Customer)`, role: 'customer', note: 'Inspection request submitted.' },
+        ],
+      },
+      {
+        customer: custAnanya._id,
+        technician: techSanjay._id,
+        applianceType: 'Television (Smart TV)',
+        brand: 'Sony',
+        issueDescription: 'TV panel backlight is dark on the left half of the display.',
+        photo: {
+          data: sonyTvPhoto.data,
+          contentType: sonyTvPhoto.contentType,
+        },
+        status: 'Assigned',
+        statusHistory: [
+          { status: 'Assigned', changedAt: new Date(Date.now() - 3600000 * 18), changedBy: `${custAnanya.name} (Customer)`, role: 'customer', note: 'Display repair requested.' },
+        ],
+      },
     ];
 
     for (const reqData of requestsToSeed) {
@@ -263,7 +303,7 @@ const seedRealisticData = async () => {
       await doc.save();
     }
 
-    console.log('✅ All requests successfully linked with MongoDB photo buffers and API URLs!');
+    console.log('✅ Seeding completed: 5 Customers, 4 Technicians, and 9 Repair Requests with PNG photos saved in MongoDB Atlas.');
   } catch (error) {
     console.error('Error seeding data:', error.message);
   }

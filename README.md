@@ -68,22 +68,23 @@ The **Repair Service Management System** (**FixIt Pro**) is a full-stack, enterp
 
 ```
 Kartik_Wagh/
-├── sample_appliance_images/           # High-resolution appliance photos for upload and seeding
-│   ├── voltas_1.5ton_split_ac.svg
-│   ├── daikin_2ton_inverter_ac.svg
-│   ├── panasonic_1ton_smart_ac.svg
-│   ├── lg_8kg_frontload_washing_machine.svg
-│   ├── bosch_serie6_washing_machine.svg
-│   ├── samsung_345L_frost_free_fridge.svg
-│   ├── whirlpool_300L_protton_fridge.svg
-│   ├── ifb_30L_convection_microwave.svg
-│   ├── sony_bravia_55inch_4k_tv.svg
-│   └── kent_grand_plus_ro_purifier.svg
+├── sample_appliance_images/           # High-resolution PNG appliance photos for upload and seeding
+│   ├── voltas_1.5ton_split_ac.png
+│   ├── daikin_2ton_inverter_ac.png
+│   ├── panasonic_1ton_smart_ac.png
+│   ├── lg_8kg_frontload_washing_machine.png
+│   ├── bosch_serie6_washing_machine.png
+│   ├── samsung_345L_frost_free_fridge.png
+│   ├── whirlpool_300L_protton_fridge.png
+│   ├── ifb_30L_convection_microwave.png
+│   ├── sony_bravia_55inch_4k_tv.png
+│   └── kent_grand_plus_ro_purifier.png
 ├── backend/
 │   ├── config/
-│   │   ├── db.js                      # MongoDB Atlas / Memory fallback connection
+│   │   ├── db.js                      # MongoDB Atlas connection & empty DB auto-seeder
 │   │   ├── seed.js                    # Minimal demo seeder
-│   │   └── seedRealisticData.js       # Indian Mumbai dataset seeder with binary photos
+│   │   ├── seedRealisticData.js       # Indian Mumbai dataset seeder with binary PNG photos
+│   │   └── seedRunner.js              # Standalone manual seed CLI runner (npm run seed)
 │   ├── controllers/
 │   │   ├── authController.js          # Register, Login, Me endpoints
 │   │   ├── requestController.js       # Repair request CRUD, photo stream & workflow logic
@@ -398,7 +399,13 @@ cd Backend_Major_Project/Kartik_Wagh
    MAX_FILE_SIZE_MB=5
    CLIENT_URL=http://localhost:5173
    ```
-5. Start the backend server:
+5. *(Optional)* Seed demo data manually:
+   ```bash
+   npm run seed
+   ```
+   > **Note**: On server startup, the backend checks if the database is empty (`Customer.countDocuments() === 0`) and automatically seeds realistic demo data only if no customer records exist. It never wipes existing data on server restarts.
+
+6. Start the backend server:
    ```bash
    # Development mode with nodemon auto-restart:
    npm run dev
@@ -509,7 +516,7 @@ npm test
 - [x] **Customer Schema**: `name`, `email` (unique), `password` (hashed with bcrypt, `select: false`), `phone`, `address`, `role: 'customer'`, timestamps.
 - [x] **Technician Schema**: `name`, `email` (unique), `password` (hashed, `select: false`), `phone`, `specialization`, `role: 'technician'`, timestamps.
 - [x] **RepairRequest Schema**: `customer` (ref `Customer`), `technician` (ref `Technician`), `applianceType`, `brand`, `issueDescription` (min 10 chars), `photoPath` (`/api/requests/:id/photo`), `photo.data` (Buffer), `photo.contentType`, `status` (enum), `statusHistory` audit array, timestamps.
-- [x] **Multer Upload**: Configured with `memoryStorage`, 5MB size limit, JPEG/PNG/WebP/SVG filter, stored in MongoDB Atlas, and streamed through authenticated endpoint `GET /api/requests/:id/photo`.
+- [x] **Multer Upload**: Configured with `memoryStorage`, 5MB size limit, JPEG/PNG/WebP filter, stored in MongoDB Atlas as Binary Buffers, and streamed through authenticated endpoint `GET /api/requests/:id/photo`.
 - [x] **Authorization**: JWT authentication middleware, role-based checks (`authorizeRoles`), and ownership/assignment checks (`checkRequestAccess`).
 - [x] **Status Workflow & Customer Cancel**: State machine enforcement (`Assigned` &rarr; `In Progress` &rarr; `Completed`) with Customer Cancellation allowed from `Assigned` state and immutable history recording.
 - [x] **React Frontend**: Full UI with login/register role toggle, Customer Dashboard with photo thumbnails, metrics, and cancel action, Technician Workspace with workflow buttons, Raise Request form with photo preview, and Request Details page with audit timeline and secure photo lightbox.
