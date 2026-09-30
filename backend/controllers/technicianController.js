@@ -19,7 +19,7 @@ const getTechnicians = async (req, res, next) => {
     }
 
     const technicians = await Technician.find(query)
-      .select('-password')
+      .select('name specialization _id')
       .sort({ name: 1 });
 
     res.status(200).json({

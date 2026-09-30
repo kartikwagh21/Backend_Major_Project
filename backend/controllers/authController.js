@@ -20,6 +20,13 @@ const register = async (req, res, next) => {
   try {
     const { name, email, password, phone, role = 'customer', specialization, address } = req.body;
 
+    if (!['customer', 'technician'].includes(role)) {
+      return res.status(400).json({
+        success: false,
+        message: "Role must be either 'customer' or 'technician'.",
+      });
+    }
+
     // Check if email is already taken across both collections
     const existingCustomer = await Customer.findOne({ email });
     const existingTech = await Technician.findOne({ email });
