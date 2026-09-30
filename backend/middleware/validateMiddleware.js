@@ -103,22 +103,6 @@ const createRequestValidationRules = [
     .withMessage('Issue description is required.')
     .isLength({ min: 10 })
     .withMessage('Issue description must be at least 10 characters long.'),
-  // Custom check for photo file
-  (req, res, next) => {
-    if (!req.file) {
-      return res.status(400).json({
-        success: false,
-        message: 'Appliance photo is required. Please upload an image file using key "photo".',
-        errors: [
-          {
-            field: 'photo',
-            message: 'Appliance photo file is required.',
-          },
-        ],
-      });
-    }
-    next();
-  },
 ];
 
 // Validation rules for Status Updates

@@ -37,15 +37,6 @@ const COMMON_BRANDS = [
   'Other Brand',
 ];
 
-const PRESET_PHOTOS = [
-  { id: 'ac', label: 'Air Conditioner', file: '/sample-appliances/sample_ac.svg', name: 'voltas_ac_photo.svg' },
-  { id: 'wm', label: 'Washing Machine', file: '/sample-appliances/sample_wm.svg', name: 'lg_frontload_photo.svg' },
-  { id: 'fridge', label: 'Refrigerator', file: '/sample-appliances/sample_fridge.svg', name: 'samsung_fridge_photo.svg' },
-  { id: 'micro', label: 'Microwave Oven', file: '/sample-appliances/sample_microwave.svg', name: 'ifb_microwave_photo.svg' },
-  { id: 'tv', label: 'Smart TV', file: '/sample-appliances/sample_tv.svg', name: 'sony_bravia_photo.svg' },
-  { id: 'ro', label: 'Water Purifier', file: '/sample-appliances/sample_ro.svg', name: 'kent_ro_photo.svg' },
-];
-
 const QUICK_DESCRIPTIONS = [
   { label: 'AC Low Cooling', text: 'Indoor unit cooling is minimal and error code E4 is flashing intermittently on the LED display.' },
   { label: 'Washing Machine Drum', text: 'Drum produces excessive loud thumping noise and fails to spin during the final rinse cycle.' },
@@ -120,19 +111,6 @@ const RaiseRequest = () => {
     }
   };
 
-  const handleSelectPresetPhoto = async (preset) => {
-    try {
-      setError('');
-      const response = await fetch(preset.file);
-      const blob = await response.blob();
-      const file = new File([blob], preset.name, { type: 'image/svg+xml' });
-      setPhotoFile(file);
-      setPhotoPreview(preset.file);
-    } catch (err) {
-      setError('Could not load preset photo.');
-    }
-  };
-
   const removePhoto = () => {
     setPhotoFile(null);
     setPhotoPreview(null);
@@ -145,11 +123,6 @@ const RaiseRequest = () => {
     e.preventDefault();
     setError('');
     setFieldErrors([]);
-
-    if (!photoFile) {
-      setError('Please upload an appliance photo or select one of the sample photos.');
-      return;
-    }
 
     if (formData.issueDescription.trim().length < 10) {
       setError('Issue description must be at least 10 characters long.');
@@ -179,7 +152,10 @@ const RaiseRequest = () => {
           : formData.brand
       );
       data.append('issueDescription', formData.issueDescription.trim());
-      data.append('photo', photoFile);
+      
+      if (photoFile) {
+        data.append('photo', photoFile);
+      }
 
       const res = await api.post('/requests', data, {
         headers: {
@@ -201,7 +177,7 @@ const RaiseRequest = () => {
   };
 
   return (
-    <div style={{ maxWidth: '680px', margin: '0.5rem auto' }}>
+    <div style={{ maxWidth: '680px', margin: '1rem auto 3rem' }}>
       <Link
         to="/dashboard"
         style={{
@@ -211,20 +187,29 @@ const RaiseRequest = () => {
           color: '#94a3b8',
           fontSize: '0.85rem',
           fontWeight: 600,
-          marginBottom: '1rem',
+          marginBottom: '1.25rem',
+          textDecoration: 'none',
         }}
       >
-        <ArrowLeft size={15} />
+        <ArrowLeft size={16} />
         <span>Back to My Requests</span>
       </Link>
 
-      <div className="clean-card" style={{ padding: '2rem', backgroundColor: '#111726' }}>
+      <div
+        className="clean-card"
+        style={{
+          padding: '2.25rem',
+          backgroundColor: '#111726',
+          borderRadius: '14px',
+          border: '1px solid #1e293d',
+        }}
+      >
         <div style={{ marginBottom: '1.5rem' }}>
-          <h1 style={{ fontSize: '1.45rem', color: '#f8fafc', marginBottom: '0.2rem' }}>
+          <h1 style={{ fontSize: '1.5rem', fontWeight: 700, color: '#f8fafc', marginBottom: '0.3rem' }}>
             New Repair Request
           </h1>
           <p style={{ color: '#94a3b8', fontSize: '0.875rem' }}>
-            Provide appliance specifications, photo, and assign a Mumbai service specialist
+            Provide appliance specifications, issue details, and optional inspection photo
           </p>
         </div>
 
@@ -246,8 +231,10 @@ const RaiseRequest = () => {
 
         <form onSubmit={handleSubmit}>
           {/* Technician Select */}
-          <div className="form-group">
-            <label className="form-label">Assign Technician</label>
+          <div className="form-group" style={{ marginBottom: '1.25rem' }}>
+            <label className="form-label" style={{ color: '#cbd5e1', fontSize: '0.875rem', fontWeight: 500 }}>
+              Assign Technician
+            </label>
             {loadingTechs ? (
               <div style={{ color: '#94a3b8', fontSize: '0.85rem' }}>Loading technicians...</div>
             ) : technicians.length === 0 ? (
@@ -261,6 +248,13 @@ const RaiseRequest = () => {
                 value={formData.technician}
                 onChange={handleChange}
                 required
+                style={{
+                  backgroundColor: '#0c121e',
+                  border: '1px solid #1e293d',
+                  color: '#f8fafc',
+                  padding: '0.65rem 0.85rem',
+                  borderRadius: '8px',
+                }}
               >
                 {technicians.map((t) => (
                   <option key={t._id} value={t._id}>
@@ -271,16 +265,25 @@ const RaiseRequest = () => {
             )}
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1.25rem' }}>
             {/* Appliance Type */}
-            <div className="form-group">
-              <label className="form-label">Appliance Type</label>
+            <div className="form-group" style={{ marginBottom: 0 }}>
+              <label className="form-label" style={{ color: '#cbd5e1', fontSize: '0.875rem', fontWeight: 500 }}>
+                Appliance Type
+              </label>
               <select
                 name="applianceType"
                 className="form-control"
                 value={formData.applianceType}
                 onChange={handleChange}
                 required
+                style={{
+                  backgroundColor: '#0c121e',
+                  border: '1px solid #1e293d',
+                  color: '#f8fafc',
+                  padding: '0.65rem 0.85rem',
+                  borderRadius: '8px',
+                }}
               >
                 {COMMON_APPLIANCES.map((app) => (
                   <option key={app} value={app}>
@@ -291,14 +294,23 @@ const RaiseRequest = () => {
             </div>
 
             {/* Brand */}
-            <div className="form-group">
-              <label className="form-label">Brand</label>
+            <div className="form-group" style={{ marginBottom: 0 }}>
+              <label className="form-label" style={{ color: '#cbd5e1', fontSize: '0.875rem', fontWeight: 500 }}>
+                Brand
+              </label>
               <select
                 name="brand"
                 className="form-control"
                 value={formData.brand}
                 onChange={handleChange}
                 required
+                style={{
+                  backgroundColor: '#0c121e',
+                  border: '1px solid #1e293d',
+                  color: '#f8fafc',
+                  padding: '0.65rem 0.85rem',
+                  borderRadius: '8px',
+                }}
               >
                 {COMMON_BRANDS.map((b) => (
                   <option key={b} value={b}>
@@ -310,8 +322,10 @@ const RaiseRequest = () => {
           </div>
 
           {formData.applianceType === 'Other Home Appliance' && (
-            <div className="form-group">
-              <label className="form-label">Custom Appliance Name</label>
+            <div className="form-group" style={{ marginBottom: '1.25rem' }}>
+              <label className="form-label" style={{ color: '#cbd5e1', fontSize: '0.875rem', fontWeight: 500 }}>
+                Custom Appliance Name
+              </label>
               <input
                 type="text"
                 name="customAppliance"
@@ -320,13 +334,22 @@ const RaiseRequest = () => {
                 value={formData.customAppliance}
                 onChange={handleChange}
                 required
+                style={{
+                  backgroundColor: '#0c121e',
+                  border: '1px solid #1e293d',
+                  color: '#f8fafc',
+                  padding: '0.65rem 0.85rem',
+                  borderRadius: '8px',
+                }}
               />
             </div>
           )}
 
           {formData.brand === 'Other Brand' && (
-            <div className="form-group">
-              <label className="form-label">Custom Brand Name</label>
+            <div className="form-group" style={{ marginBottom: '1.25rem' }}>
+              <label className="form-label" style={{ color: '#cbd5e1', fontSize: '0.875rem', fontWeight: 500 }}>
+                Custom Brand Name
+              </label>
               <input
                 type="text"
                 name="customBrand"
@@ -335,14 +358,23 @@ const RaiseRequest = () => {
                 value={formData.customBrand}
                 onChange={handleChange}
                 required
+                style={{
+                  backgroundColor: '#0c121e',
+                  border: '1px solid #1e293d',
+                  color: '#f8fafc',
+                  padding: '0.65rem 0.85rem',
+                  borderRadius: '8px',
+                }}
               />
             </div>
           )}
 
           {/* Issue Description */}
-          <div className="form-group">
+          <div className="form-group" style={{ marginBottom: '1.25rem' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <label className="form-label">Issue Description</label>
+              <label className="form-label" style={{ color: '#cbd5e1', fontSize: '0.875rem', fontWeight: 500 }}>
+                Issue Description
+              </label>
               <span
                 style={{
                   fontSize: '0.75rem',
@@ -362,12 +394,19 @@ const RaiseRequest = () => {
               onChange={handleChange}
               required
               minLength={10}
+              style={{
+                backgroundColor: '#0c121e',
+                border: '1px solid #1e293d',
+                color: '#f8fafc',
+                padding: '0.65rem 0.85rem',
+                borderRadius: '8px',
+              }}
             />
 
             {/* Quick Fill suggestions */}
-            <div style={{ display: 'flex', gap: '0.4rem', marginTop: '0.4rem', flexWrap: 'wrap' }}>
-              <span style={{ fontSize: '0.72rem', color: '#64748b', display: 'flex', alignItems: 'center', gap: '0.2rem' }}>
-                <Sparkles size={11} /> Quick templates:
+            <div style={{ display: 'flex', gap: '0.4rem', marginTop: '0.5rem', flexWrap: 'wrap' }}>
+              <span style={{ fontSize: '0.75rem', color: '#64748b', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                <Sparkles size={12} /> Templates:
               </span>
               {QUICK_DESCRIPTIONS.map((q, idx) => (
                 <button
@@ -375,12 +414,12 @@ const RaiseRequest = () => {
                   type="button"
                   onClick={() => setFormData((prev) => ({ ...prev, issueDescription: q.text }))}
                   style={{
-                    fontSize: '0.72rem',
+                    fontSize: '0.75rem',
                     color: '#60a5fa',
-                    backgroundColor: 'rgba(37, 99, 235, 0.1)',
+                    backgroundColor: 'rgba(37, 99, 235, 0.12)',
                     border: '1px solid rgba(59, 130, 246, 0.25)',
-                    padding: '0.15rem 0.45rem',
-                    borderRadius: '4px',
+                    padding: '0.2rem 0.55rem',
+                    borderRadius: '5px',
                     cursor: 'pointer',
                   }}
                 >
@@ -391,131 +430,126 @@ const RaiseRequest = () => {
           </div>
 
           {/* Photo Upload Section */}
-          <div className="form-group" style={{ marginTop: '0.75rem' }}>
-            <label className="form-label">Appliance Inspection Photo (Required)</label>
+          <div className="form-group" style={{ marginTop: '1.25rem', marginBottom: '1.75rem' }}>
+            <label className="form-label" style={{ color: '#cbd5e1', fontSize: '0.875rem', fontWeight: 500 }}>
+              Appliance Photo (Optional)
+            </label>
             <input
               type="file"
               ref={fileInputRef}
-              accept="image/jpeg,image/png,image/webp,image/svg+xml"
+              accept="image/*"
               onChange={handleFileChange}
               style={{ display: 'none' }}
-              required={!photoFile}
             />
 
             {!photoPreview ? (
-              <div>
-                <div
-                  onClick={() => fileInputRef.current?.click()}
-                  style={{
-                    border: '2px dashed #2a374f',
-                    borderRadius: 'var(--radius-sm)',
-                    padding: '1.25rem',
-                    textAlign: 'center',
-                    cursor: 'pointer',
-                    backgroundColor: '#0c121e',
-                    transition: 'all 0.15s ease',
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.borderColor = '#3b82f6';
-                    e.currentTarget.style.backgroundColor = '#111726';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.borderColor = '#2a374f';
-                    e.currentTarget.style.backgroundColor = '#0c121e';
-                  }}
-                >
-                  <Upload size={22} style={{ margin: '0 auto 0.4rem', color: '#60a5fa', display: 'block' }} />
-                  <div style={{ fontWeight: 600, fontSize: '0.875rem', color: '#f8fafc' }}>
-                    Click or drag & drop appliance photo
-                  </div>
-                  <div style={{ fontSize: '0.75rem', color: '#94a3b8', marginTop: '0.15rem' }}>
-                    JPEG, PNG, WebP or SVG up to 5MB
-                  </div>
+              <div
+                onClick={() => fileInputRef.current?.click()}
+                style={{
+                  border: '2px dashed #2a374f',
+                  borderRadius: '10px',
+                  padding: '1.5rem',
+                  textAlign: 'center',
+                  cursor: 'pointer',
+                  backgroundColor: '#0c121e',
+                  transition: 'all 0.15s ease',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.borderColor = '#3b82f6';
+                  e.currentTarget.style.backgroundColor = '#111726';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.borderColor = '#2a374f';
+                  e.currentTarget.style.backgroundColor = '#0c121e';
+                }}
+              >
+                <Upload size={24} style={{ margin: '0 auto 0.4rem', color: '#60a5fa', display: 'block' }} />
+                <div style={{ fontWeight: 600, fontSize: '0.875rem', color: '#f8fafc' }}>
+                  Click to upload appliance photo
                 </div>
-
-                {/* Instant Preset Photo Picker */}
-                <div style={{ marginTop: '0.85rem' }}>
-                  <div style={{ fontSize: '0.75rem', color: '#94a3b8', fontWeight: 600, marginBottom: '0.4rem' }}>
-                    Or select an instant sample photo:
-                  </div>
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '0.45rem' }}>
-                    {PRESET_PHOTOS.map((p) => (
-                      <button
-                        key={p.id}
-                        type="button"
-                        onClick={() => handleSelectPresetPhoto(p)}
-                        style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '0.35rem',
-                          padding: '0.4rem 0.6rem',
-                          backgroundColor: '#182032',
-                          border: '1px solid #2a374f',
-                          borderRadius: '6px',
-                          color: '#cbd5e1',
-                          fontSize: '0.75rem',
-                          cursor: 'pointer',
-                          transition: 'all 0.15s ease',
-                        }}
-                        onMouseEnter={(e) => {
-                          e.currentTarget.style.borderColor = '#3b82f6';
-                          e.currentTarget.style.color = '#f8fafc';
-                        }}
-                        onMouseLeave={(e) => {
-                          e.currentTarget.style.borderColor = '#2a374f';
-                          e.currentTarget.style.color = '#cbd5e1';
-                        }}
-                      >
-                        <ImageIcon size={13} color="#60a5fa" />
-                        <span>{p.label}</span>
-                      </button>
-                    ))}
-                  </div>
+                <div style={{ fontSize: '0.75rem', color: '#94a3b8', marginTop: '0.2rem' }}>
+                  Supports JPEG, PNG, WebP or SVG up to 5MB
                 </div>
               </div>
             ) : (
               <div
                 style={{
                   position: 'relative',
-                  borderRadius: 'var(--radius-sm)',
+                  borderRadius: '10px',
                   overflow: 'hidden',
                   border: '1px solid #1e293d',
-                  maxHeight: '220px',
                   backgroundColor: '#0c121e',
+                  padding: '0.75rem',
                   display: 'flex',
                   alignItems: 'center',
-                  justifyContent: 'center',
+                  gap: '1rem',
                 }}
               >
                 <img
                   src={photoPreview}
-                  alt="Preview"
-                  style={{ maxWidth: '100%', maxHeight: '210px', objectFit: 'contain' }}
+                  alt="Appliance Preview"
+                  style={{
+                    width: '80px',
+                    height: '80px',
+                    objectFit: 'cover',
+                    borderRadius: '8px',
+                    border: '1px solid #2a374f',
+                  }}
                 />
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: '0.85rem', fontWeight: 600, color: '#f8fafc' }}>
+                    {photoFile?.name || 'Uploaded photo'}
+                  </div>
+                  <div style={{ fontSize: '0.75rem', color: '#94a3b8', marginTop: '0.15rem' }}>
+                    {photoFile?.size ? `${(photoFile.size / 1024).toFixed(1)} KB` : 'Image attached'}
+                  </div>
+                </div>
                 <button
                   type="button"
                   onClick={removePhoto}
-                  className="btn btn-danger"
                   style={{
-                    position: 'absolute',
-                    top: '8px',
-                    right: '8px',
-                    padding: '0.3rem 0.55rem',
+                    backgroundColor: 'rgba(239, 68, 68, 0.15)',
+                    color: '#f87171',
+                    border: '1px solid rgba(239, 68, 68, 0.3)',
+                    borderRadius: '6px',
+                    padding: '0.4rem 0.65rem',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.35rem',
                     fontSize: '0.75rem',
+                    fontWeight: 600,
                   }}
                 >
-                  <X size={13} />
-                  <span>Change Photo</span>
+                  <X size={14} />
+                  <span>Remove</span>
                 </button>
               </div>
             )}
           </div>
 
+          {/* Submit Button */}
           <button
             type="submit"
-            className="btn btn-primary"
-            style={{ width: '100%', marginTop: '1.5rem', padding: '0.7rem' }}
-            disabled={loading || loadingTechs || technicians.length === 0}
+            style={{
+              width: '100%',
+              backgroundColor: '#16a34a',
+              color: '#ffffff',
+              border: 'none',
+              padding: '0.75rem',
+              borderRadius: '8px',
+              fontSize: '0.925rem',
+              fontWeight: 600,
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              boxShadow: '0 2px 8px rgba(22, 163, 74, 0.35)',
+              transition: 'all 0.15s ease',
+            }}
+            onMouseOver={(e) => (e.currentTarget.style.backgroundColor = '#15803d')}
+            onMouseOut={(e) => (e.currentTarget.style.backgroundColor = '#16a34a')}
+            disabled={loading}
           >
             {loading ? 'Submitting Request...' : 'Submit Repair Request'}
           </button>
