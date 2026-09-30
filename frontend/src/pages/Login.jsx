@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link, useNavigate, Navigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Wrench, User, AlertCircle } from 'lucide-react';
 
@@ -10,13 +10,8 @@ const Login = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const { user, isAuthenticated, loading: authLoading, login } = useAuth();
+  const { login } = useAuth();
   const navigate = useNavigate();
-
-  // If already authenticated, redirect to appropriate dashboard
-  if (!authLoading && isAuthenticated && user) {
-    return <Navigate to={user.role === 'technician' ? '/technician' : '/dashboard'} replace />;
-  }
 
   const handleSubmit = async (e) => {
     e.preventDefault();
