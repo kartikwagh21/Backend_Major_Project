@@ -11,9 +11,6 @@ if (!normalizedBaseUrl.endsWith('/api')) {
 
 const api = axios.create({
   baseURL: normalizedBaseUrl,
-  headers: {
-    'Content-Type': 'application/json',
-  },
 });
 
 // Request interceptor to attach JWT token
@@ -21,6 +18,8 @@ api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('repair_service_token');
     if (token) {
+      config.headers = config.headers || {};
+      config.headers['Authorization'] = `Bearer ${token}`;
       config.headers.Authorization = `Bearer ${token}`;
     }
     return config;
@@ -38,8 +37,7 @@ api.interceptors.response.use(
       // Token expired or invalid
       const currentPath = window.location.pathname;
       if (currentPath !== '/login' && currentPath !== '/register') {
-        localStorage.removeItem('repair_service_token');
-        localStorage.removeItem('repair_service_user');
+        // Only clear if actually logged out
       }
     }
     return Promise.reject(error);

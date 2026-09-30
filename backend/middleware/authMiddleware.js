@@ -4,16 +4,17 @@ const Technician = require('../models/Technician');
 
 const protect = async (req, res, next) => {
   let token;
+  const authHeader = req.headers.authorization || req.headers.Authorization || req.header('Authorization');
 
-  if (
-    req.headers.authorization &&
-    req.headers.authorization.startsWith('Bearer')
-  ) {
+  if (authHeader && authHeader.startsWith('Bearer')) {
     try {
-      token = req.headers.authorization.split(' ')[1];
+      token = authHeader.split(' ')[1];
 
       // Verify token
-      const decoded = jwt.verify(token, process.env.JWT_SECRET || 'repair_service_super_secret_jwt_key_2026_case_study_132');
+      const decoded = jwt.verify(
+        token,
+        process.env.JWT_SECRET || 'repair_service_super_secret_jwt_key_2026_case_study_132'
+      );
 
       // Check role and fetch user
       let user = null;

@@ -157,9 +157,10 @@ const RaiseRequest = () => {
         data.append('photo', photoFile);
       }
 
+      const token = localStorage.getItem('repair_service_token');
       const res = await api.post('/requests', data, {
         headers: {
-          'Content-Type': 'multipart/form-data',
+          Authorization: `Bearer ${token}`,
         },
       });
 
