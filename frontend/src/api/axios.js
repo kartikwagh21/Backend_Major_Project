@@ -32,21 +32,10 @@ const sanitizeAndValidateUrl = (rawUrl) => {
 };
 
 const getBaseUrl = () => {
-  const isBrowser = typeof window !== 'undefined';
-  const isProduction =
-    isBrowser &&
-    window.location.hostname !== 'localhost' &&
-    window.location.hostname !== '127.0.0.1';
-
   let envUrl = import.meta.env.VITE_API_BASE_URL;
   let resolved = sanitizeAndValidateUrl(envUrl);
 
-  if (isProduction) {
-    if (!resolved || resolved.includes('localhost') || resolved.includes('127.0.0.1')) {
-      resolved = 'https://backend-major-project-tlhb.onrender.com/api';
-    }
-  }
-
+  // If no environment variable is configured, default to local dev server
   if (!resolved) {
     resolved = 'http://localhost:5001/api';
   }

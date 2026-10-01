@@ -22,23 +22,10 @@ if (process.env.NODE_ENV !== 'test') {
   connectDB();
 }
 
-// CORS Configuration
-const allowedOrigins = [
-  'http://localhost:5173',
-  'http://localhost:3000',
-  'http://127.0.0.1:5173',
-  process.env.CLIENT_URL,
-].filter(Boolean);
-
+// CORS Configuration (Permissive for local & any Vercel domain)
 app.use(
   cors({
-    origin: (origin, callback) => {
-      // Allow requests with no origin (like mobile apps, curl, postman) or matching origins
-      if (!origin || allowedOrigins.includes(origin) || allowedOrigins.includes('*') || process.env.NODE_ENV !== 'production') {
-        return callback(null, true);
-      }
-      return callback(null, true); // Permissive to ensure live deployment works flawlessly
-    },
+    origin: true,
     credentials: true,
   })
 );
