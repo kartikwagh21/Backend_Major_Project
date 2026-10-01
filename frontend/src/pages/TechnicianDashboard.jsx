@@ -31,16 +31,24 @@ const TechnicianDashboard = () => {
   const [selectedFilter, setSelectedFilter] = useState('All');
   const [modalImage, setModalImage] = useState(null);
 
-  const fetchAssignedRequests = async (status = selectedFilter) => {
+  const fetchAssignedRequests = async () => {
     setLoading(true);
     setError('');
     try {
-      const url = status && status !== 'All' ? `/requests/assigned?status=${encodeURIComponent(status)}` : '/requests/assigned';
-      const res = await api.get(url);
+      const res = await api.get('/requests/assigned');
       if (res.data.success) {
         setRequests(res.data.data);
       }
     } catch (err) {
+      if (err.response?.status === 401) {
+        logout();
+        navigate('/login');
+        return;
+      }
+      if (err.response?.status === 403 && err.response?.data?.message?.includes('customer')) {
+        navigate('/dashboard');
+        return;
+      }
       setError(err.response?.data?.message || 'Failed to fetch assigned requests.');
     } finally {
       setLoading(false);
@@ -49,9 +57,9 @@ const TechnicianDashboard = () => {
 
   useEffect(() => {
     if (user?.role === 'technician') {
-      fetchAssignedRequests(selectedFilter);
+      fetchAssignedRequests();
     }
-  }, [selectedFilter, user?._id, user?.role]);
+  }, [user?._id, user?.role]);
 
   const handleQuickStatusUpdate = async (requestId, nextStatus) => {
     setUpdatingId(requestId);
@@ -64,7 +72,7 @@ const TechnicianDashboard = () => {
       });
       if (res.data.success) {
         setActionSuccess(`Job marked as "${nextStatus}" successfully!`);
-        fetchAssignedRequests(selectedFilter);
+        fetchAssignedRequests();
         setTimeout(() => setActionSuccess(''), 4000);
       }
     } catch (err) {
@@ -79,7 +87,13 @@ const TechnicianDashboard = () => {
     assigned: requests.filter((r) => r.status === 'Assigned').length,
     inProgress: requests.filter((r) => r.status === 'In Progress').length,
     completed: requests.filter((r) => r.status === 'Completed').length,
+    cancelled: requests.filter((r) => r.status === 'Cancelled').length,
   };
+
+  const filteredRequests =
+    selectedFilter === 'All'
+      ? requests
+      : requests.filter((r) => r.status === selectedFilter);
 
 
 
@@ -214,7 +228,7 @@ const TechnicianDashboard = () => {
         <div style={{ textAlign: 'center', padding: '3.5rem 0', color: '#6B7280' }}>
           <p>Loading assigned tasks...</p>
         </div>
-      ) : requests.length === 0 ? (
+      ) : filteredRequests.length === 0 ? (
         <div
           className="clean-card"
           style={{
@@ -249,7 +263,7 @@ const TechnicianDashboard = () => {
         </div>
       ) : (
         <div className="grid-responsive">
-          {requests.map((req) => (
+          {filteredRequests.map((req) => (
             <div
               key={req._id}
               className="clean-card"

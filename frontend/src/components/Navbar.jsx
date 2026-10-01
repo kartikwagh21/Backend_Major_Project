@@ -109,29 +109,6 @@ const Navbar = () => {
                 </>
               )}
 
-              {isTechnician && (
-                <Link
-                  to="/technician"
-                  style={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: '0.4rem',
-                    fontSize: '0.825rem',
-                    fontWeight: 600,
-                    padding: '0.45rem 0.85rem',
-                    borderRadius: '6px',
-                    color: ['/technician', '/assigned-queue', '/assigned', '/requests/assigned'].includes(location.pathname) ? '#FFFFFF' : '#D1D5DB',
-                    backgroundColor: ['/technician', '/assigned-queue', '/assigned', '/requests/assigned'].includes(location.pathname) ? '#374151' : 'transparent',
-                    border: ['/technician', '/assigned-queue', '/assigned', '/requests/assigned'].includes(location.pathname) ? '1px solid #4B5563' : '1px solid transparent',
-                    transition: 'all 0.15s ease',
-                    textDecoration: 'none',
-                  }}
-                >
-                  <ClipboardList size={15} />
-                  <span>Assigned Queue</span>
-                </Link>
-              )}
-
               {/* User Profile Pill */}
               <div
                 style={{

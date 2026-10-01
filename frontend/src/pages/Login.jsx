@@ -21,9 +21,9 @@ const Login = () => {
     try {
       const loggedInUser = await login(email, password, role);
       if (loggedInUser.role === 'technician') {
-        navigate('/technician');
+        navigate('/technician', { replace: true });
       } else {
-        navigate('/dashboard');
+        navigate('/dashboard', { replace: true });
       }
     } catch (err) {
       setError(err.response?.data?.message || err.message || 'Login failed.');

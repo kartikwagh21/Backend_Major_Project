@@ -17,9 +17,9 @@ export const AuthProvider = ({ children }) => {
     return localStorage.getItem('repair_service_token') || null;
   });
 
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
 
-  // Validate session on mount
+  // Validate session in background on mount if token exists
   useEffect(() => {
     const verifyAuth = async () => {
       if (token) {
@@ -34,33 +34,42 @@ export const AuthProvider = ({ children }) => {
           logout();
         }
       }
-      setLoading(false);
     };
 
     verifyAuth();
   }, [token]);
 
   const login = async (email, password, role) => {
+    localStorage.removeItem('repair_service_token');
+    localStorage.removeItem('repair_service_user');
+    setToken(null);
+    setUser(null);
+
     const res = await api.post('/auth/login', { email, password, role });
     if (res.data.success) {
       const { token: receivedToken, user: receivedUser } = res.data.data;
-      setToken(receivedToken);
-      setUser(receivedUser);
       localStorage.setItem('repair_service_token', receivedToken);
       localStorage.setItem('repair_service_user', JSON.stringify(receivedUser));
+      setToken(receivedToken);
+      setUser(receivedUser);
       return receivedUser;
     }
     throw new Error(res.data.message || 'Login failed');
   };
 
   const register = async (userData) => {
+    localStorage.removeItem('repair_service_token');
+    localStorage.removeItem('repair_service_user');
+    setToken(null);
+    setUser(null);
+
     const res = await api.post('/auth/register', userData);
     if (res.data.success) {
       const { token: receivedToken, user: receivedUser } = res.data.data;
-      setToken(receivedToken);
-      setUser(receivedUser);
       localStorage.setItem('repair_service_token', receivedToken);
       localStorage.setItem('repair_service_user', JSON.stringify(receivedUser));
+      setToken(receivedToken);
+      setUser(receivedUser);
       return receivedUser;
     }
     throw new Error(res.data.message || 'Registration failed');

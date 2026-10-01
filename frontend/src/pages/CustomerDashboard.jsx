@@ -29,12 +29,11 @@ const CustomerDashboard = () => {
   const [selectedFilter, setSelectedFilter] = useState('All');
   const [modalImage, setModalImage] = useState(null);
 
-  const fetchRequests = async (status = selectedFilter) => {
+  const fetchRequests = async () => {
     setLoading(true);
     setError('');
     try {
-      const url = status && status !== 'All' ? `/requests/my?status=${encodeURIComponent(status)}` : '/requests/my';
-      const res = await api.get(url);
+      const res = await api.get('/requests/my');
       if (res.data.success) {
         setRequests(res.data.data);
       }
@@ -42,6 +41,10 @@ const CustomerDashboard = () => {
       if (err.response?.status === 401) {
         logout();
         navigate('/login');
+        return;
+      }
+      if (err.response?.status === 403 && err.response?.data?.message?.includes('technician')) {
+        navigate('/technician');
         return;
       }
       setError(err.response?.data?.message || 'Failed to fetch repair requests.');
@@ -67,7 +70,7 @@ const CustomerDashboard = () => {
 
       if (res.data.success) {
         setActionSuccess('Repair request cancelled successfully.');
-        fetchRequests(selectedFilter);
+        fetchRequests();
         setTimeout(() => setActionSuccess(''), 4000);
       }
     } catch (err) {
@@ -79,16 +82,22 @@ const CustomerDashboard = () => {
 
   useEffect(() => {
     if (user?.role === 'customer') {
-      fetchRequests(selectedFilter);
+      fetchRequests();
     }
-  }, [selectedFilter, user?._id, user?.role]);
+  }, [user?._id, user?.role]);
 
   const stats = {
     total: requests.length,
     assigned: requests.filter((r) => r.status === 'Assigned').length,
     inProgress: requests.filter((r) => r.status === 'In Progress').length,
     completed: requests.filter((r) => r.status === 'Completed').length,
+    cancelled: requests.filter((r) => r.status === 'Cancelled').length,
   };
+
+  const filteredRequests =
+    selectedFilter === 'All'
+      ? requests
+      : requests.filter((r) => r.status === selectedFilter);
 
 
 
@@ -230,7 +239,7 @@ const CustomerDashboard = () => {
         <div style={{ textAlign: 'center', padding: '3.5rem 0', color: '#6B7280' }}>
           <p>Loading your requests...</p>
         </div>
-      ) : requests.length === 0 ? (
+      ) : filteredRequests.length === 0 ? (
         <div
           className="clean-card"
           style={{
@@ -269,7 +278,7 @@ const CustomerDashboard = () => {
         </div>
       ) : (
         <div className="grid-responsive">
-          {requests.map((req) => (
+          {filteredRequests.map((req) => (
             <div
               key={req._id}
               className="clean-card"
