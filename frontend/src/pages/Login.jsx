@@ -199,7 +199,14 @@ const Login = () => {
             onMouseOut={(e) => (e.currentTarget.style.backgroundColor = '#2563EB')}
             disabled={loading}
           >
-            {loading ? 'Signing in...' : `Sign in as ${role === 'customer' ? 'Customer' : 'Technician'}`}
+            {loading ? (
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}>
+                <span className="spinner" style={{ width: '14px', height: '14px', border: '2px solid rgba(255,255,255,0.3)', borderTopColor: '#ffffff', borderRadius: '50%', display: 'inline-block', animation: 'spin 0.8s linear infinite' }}></span>
+                <span>Signing in... (Waking up server...)</span>
+              </span>
+            ) : (
+              `Sign in as ${role === 'customer' ? 'Customer' : 'Technician'}`
+            )}
           </button>
         </form>
 

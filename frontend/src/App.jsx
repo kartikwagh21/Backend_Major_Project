@@ -59,6 +59,22 @@ function App() {
                 }
               />
               <Route
+                path="/my-requests"
+                element={
+                  <ProtectedRoute allowedRoles={['customer']}>
+                    <CustomerDashboard />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/requests/my"
+                element={
+                  <ProtectedRoute allowedRoles={['customer']}>
+                    <CustomerDashboard />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
                 path="/raise-request"
                 element={
                   <ProtectedRoute allowedRoles={['customer']}>
@@ -70,6 +86,30 @@ function App() {
               {/* Technician Routes */}
               <Route
                 path="/technician"
+                element={
+                  <ProtectedRoute allowedRoles={['technician']}>
+                    <TechnicianDashboard />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/assigned-queue"
+                element={
+                  <ProtectedRoute allowedRoles={['technician']}>
+                    <TechnicianDashboard />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/assigned"
+                element={
+                  <ProtectedRoute allowedRoles={['technician']}>
+                    <TechnicianDashboard />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/requests/assigned"
                 element={
                   <ProtectedRoute allowedRoles={['technician']}>
                     <TechnicianDashboard />
