@@ -1,38 +1,57 @@
 import axios from 'axios';
 
-// Resilient API Base URL resolution with automatic protocol & fallback handling
+// Sanitize, strip quotes, and validate any environment or fallback URL
+const sanitizeAndValidateUrl = (rawUrl) => {
+  if (!rawUrl) return null;
+  let cleaned = String(rawUrl)
+    .trim()
+    .replace(/^['"`]+|['"`]+$/g, '')
+    .trim()
+    .replace(/;+$/, '')
+    .trim();
+
+  if (!cleaned) return null;
+
+  if (!cleaned.startsWith('http://') && !cleaned.startsWith('https://')) {
+    cleaned = `https://${cleaned}`;
+  }
+
+  cleaned = cleaned.replace(/\/+$/, '');
+
+  if (!cleaned.endsWith('/api')) {
+    cleaned = `${cleaned}/api`;
+  }
+
+  try {
+    const parsed = new URL(cleaned);
+    return parsed.origin + parsed.pathname.replace(/\/+$/, '');
+  } catch (err) {
+    console.warn('Invalid URL pattern detected:', rawUrl);
+    return null;
+  }
+};
+
 const getBaseUrl = () => {
-  let envUrl = (import.meta.env.VITE_API_BASE_URL || '').trim();
   const isBrowser = typeof window !== 'undefined';
   const isProduction =
     isBrowser &&
     window.location.hostname !== 'localhost' &&
     window.location.hostname !== '127.0.0.1';
 
-  // On production hosts (e.g. Vercel), if env variable is empty or localhost, use live Render backend
-  if (isProduction && (!envUrl || envUrl.includes('localhost') || envUrl.includes('127.0.0.1'))) {
-    envUrl = 'https://backend-major-project-tlhb.onrender.com/api';
+  let envUrl = import.meta.env.VITE_API_BASE_URL;
+  let resolved = sanitizeAndValidateUrl(envUrl);
+
+  if (isProduction) {
+    if (!resolved || resolved.includes('localhost') || resolved.includes('127.0.0.1')) {
+      resolved = 'https://backend-major-project-tlhb.onrender.com/api';
+    }
   }
 
-  // Local development default
-  if (!envUrl) {
-    envUrl = 'http://localhost:5001/api';
+  if (!resolved) {
+    resolved = 'http://localhost:5001/api';
   }
 
-  // Ensure valid HTTP/HTTPS protocol
-  if (!envUrl.startsWith('http://') && !envUrl.startsWith('https://')) {
-    envUrl = `https://${envUrl}`;
-  }
-
-  // Strip trailing slashes
-  envUrl = envUrl.replace(/\/+$/, '');
-
-  // Ensure /api suffix is present
-  if (!envUrl.endsWith('/api')) {
-    envUrl = `${envUrl}/api`;
-  }
-
-  return envUrl;
+  return resolved;
 };
 
 const normalizedBaseUrl = getBaseUrl();
