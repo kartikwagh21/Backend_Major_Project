@@ -1,16 +1,41 @@
 import axios from 'axios';
 
-// Dynamic API Base URL resolution
+// Resilient API Base URL resolution with automatic protocol & fallback handling
 const getBaseUrl = () => {
-  const envUrl = import.meta.env.VITE_API_BASE_URL;
-  return envUrl || 'http://localhost:5001/api';
+  let envUrl = (import.meta.env.VITE_API_BASE_URL || '').trim();
+  const isBrowser = typeof window !== 'undefined';
+  const isProduction =
+    isBrowser &&
+    window.location.hostname !== 'localhost' &&
+    window.location.hostname !== '127.0.0.1';
+
+  // On production hosts (e.g. Vercel), if env variable is empty or localhost, use live Render backend
+  if (isProduction && (!envUrl || envUrl.includes('localhost') || envUrl.includes('127.0.0.1'))) {
+    envUrl = 'https://backend-major-project-tlhb.onrender.com/api';
+  }
+
+  // Local development default
+  if (!envUrl) {
+    envUrl = 'http://localhost:5001/api';
+  }
+
+  // Ensure valid HTTP/HTTPS protocol
+  if (!envUrl.startsWith('http://') && !envUrl.startsWith('https://')) {
+    envUrl = `https://${envUrl}`;
+  }
+
+  // Strip trailing slashes
+  envUrl = envUrl.replace(/\/+$/, '');
+
+  // Ensure /api suffix is present
+  if (!envUrl.endsWith('/api')) {
+    envUrl = `${envUrl}/api`;
+  }
+
+  return envUrl;
 };
 
-const rawBaseUrl = getBaseUrl();
-let normalizedBaseUrl = rawBaseUrl.replace(/\/+$/, '');
-if (!normalizedBaseUrl.endsWith('/api')) {
-  normalizedBaseUrl = `${normalizedBaseUrl}/api`;
-}
+const normalizedBaseUrl = getBaseUrl();
 
 const api = axios.create({
   baseURL: normalizedBaseUrl,
