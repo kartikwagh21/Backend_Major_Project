@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import api from '../api/axios';
 
+// Global in-memory cache for loaded blob object URLs
+const imageBlobCache = new Map();
+
 const SecureImage = ({
   src,
   alt = 'Appliance',
@@ -9,13 +12,12 @@ const SecureImage = ({
   onClick,
   fallback = null,
 }) => {
-  const [objectUrl, setObjectUrl] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [objectUrl, setObjectUrl] = useState(() => (src && imageBlobCache.has(src) ? imageBlobCache.get(src) : null));
+  const [loading, setLoading] = useState(!src || !imageBlobCache.has(src));
   const [error, setError] = useState(false);
 
   useEffect(() => {
     let isMounted = true;
-    let createdUrl = null;
 
     if (!src) {
       setLoading(false);
@@ -23,8 +25,16 @@ const SecureImage = ({
       return;
     }
 
+    // Return cached URL immediately if available
+    if (imageBlobCache.has(src)) {
+      setObjectUrl(imageBlobCache.get(src));
+      setLoading(false);
+      return;
+    }
+
     // Direct blob or data URL
     if (src.startsWith('blob:') || src.startsWith('data:')) {
+      imageBlobCache.set(src, src);
       setObjectUrl(src);
       setLoading(false);
       return;
@@ -56,7 +66,7 @@ const SecureImage = ({
       .then((res) => {
         if (isMounted) {
           const url = URL.createObjectURL(res.data);
-          createdUrl = url;
+          imageBlobCache.set(src, url);
           setObjectUrl(url);
           setLoading(false);
         }
@@ -71,9 +81,6 @@ const SecureImage = ({
 
     return () => {
       isMounted = false;
-      if (createdUrl) {
-        URL.revokeObjectURL(createdUrl);
-      }
     };
   }, [src]);
 

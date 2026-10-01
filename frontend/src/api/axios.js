@@ -63,10 +63,13 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// Response interceptor to handle unauthenticated 401s gracefully
+// Response interceptor with auto-retry on cold-start (502/503/504 or network errors)
 api.interceptors.response.use(
   (response) => response,
-  (error) => {
+  async (error) => {
+    const config = error.config;
+
+    // Handle 401 unauthenticated errors
     if (error.response && error.response.status === 401) {
       localStorage.removeItem('repair_service_token');
       localStorage.removeItem('repair_service_user');
@@ -76,9 +79,41 @@ api.interceptors.response.use(
           window.location.href = '/login';
         }
       }
+      return Promise.reject(error);
     }
+
+    // Auto-retry cold-start or temporary network failure (up to 3 times)
+    if (!config || config.__isRetryRequest) {
+      return Promise.reject(error);
+    }
+
+    const isNetworkOrColdStart =
+      !error.response ||
+      [502, 503, 504].includes(error.response.status) ||
+      error.code === 'ERR_NETWORK' ||
+      error.message?.includes('Network Error');
+
+    if (isNetworkOrColdStart) {
+      config.__retryCount = config.__retryCount || 0;
+      const maxRetries = 3;
+
+      if (config.__retryCount < maxRetries) {
+        config.__retryCount += 1;
+        const delay = Math.min(1500 * config.__retryCount, 4000);
+        await new Promise((resolve) => setTimeout(resolve, delay));
+        return api(config);
+      }
+    }
+
     return Promise.reject(error);
   }
 );
+
+// Pre-warm backend server in background on app load to mitigate cold-starts
+if (typeof window !== 'undefined') {
+  setTimeout(() => {
+    api.get('/health', { timeout: 60000 }).catch(() => {});
+  }, 200);
+}
 
 export default api;
