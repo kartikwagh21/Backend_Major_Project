@@ -6,12 +6,8 @@
 
 ---
 
-## 🌐 Live Production Links & Credentials
+## 🌐 Project Links & Credentials
 
-- **🚀 Live Frontend Application (Vercel)**:  
-  👉 **[https://backend-major-project-dusky.vercel.app/login](https://backend-major-project-dusky.vercel.app/login)**
-- **⚡ Live Backend API (Render)**:  
-  👉 **[https://backend-major-project-tlhb.onrender.com/api/health](https://backend-major-project-tlhb.onrender.com/api/health)**
 - **📦 GitHub Repository**:  
   👉 **[https://github.com/kartikwagh21/Backend_Major_Project](https://github.com/kartikwagh21/Backend_Major_Project)**
 - **📑 Postman Collection**: Located in `postman/Repair_Service_API.postman_collection.json`

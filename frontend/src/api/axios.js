@@ -1,18 +1,8 @@
 import axios from 'axios';
 
-// Smart resolution for API Base URL
+// Dynamic API Base URL resolution
 const getBaseUrl = () => {
   const envUrl = import.meta.env.VITE_API_BASE_URL;
-  const isBrowser = typeof window !== 'undefined';
-  const isProduction = isBrowser && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1';
-
-  // If in production browser and env variable is missing or points to localhost, use live Render backend
-  if (isProduction) {
-    if (!envUrl || envUrl.includes('localhost') || envUrl.includes('127.0.0.1')) {
-      return 'https://backend-major-project-tlhb.onrender.com/api';
-    }
-  }
-
   return envUrl || 'http://localhost:5001/api';
 };
 
